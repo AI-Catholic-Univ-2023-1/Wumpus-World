@@ -1,16 +1,17 @@
 #include "Environment.h"
 
-class Environment {
-	void setWumpus() {
+Environment::Environment() {
+
+	}
+	void Environment::setWumpus() {
 		
 	};
-	void setPit() {
+	void Environment::setPit() {
 
 	}
-	void setGold() {
+	void Environment::setGold() {
 
 	}
-	int whatIsHere(int x, int y) {
+	int Environment::whatIsHere(int x, int y) {
 
 	}
-};

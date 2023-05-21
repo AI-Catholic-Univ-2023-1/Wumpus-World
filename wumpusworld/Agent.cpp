@@ -1,28 +1,29 @@
 #include "Agent.h"
 
-class Agent {
-	void goFoward() {
+Agent::Agent() {
+
+}
+	void Agent::goForward() {
+		
+	}
+	void Agent::turnLeft() {
 
 	}
-	void turnLeft() {
+	void Agent::turnRight() {
 
 	}
-	void turnRight() {
+	void Agent::climb() {
 
 	}
-	void climb() {
+	void Agent::shoot() {
 
 	}
-	void shoot() {
+	void Agent::grab() {
 
 	}
-	void grab() {
+	void Agent::percept() {
 
 	}
-	void percept() {
+	void Agent::die() {
 
 	}
-	void die() {
-
-	}
-};

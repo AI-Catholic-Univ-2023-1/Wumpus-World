@@ -1,18 +1,14 @@
 #include "Stage.h"
-
+Stage::Stage() {
+	
+}
 Stage::~Stage() {
 	resetStage();
 	SDL_DestroyTexture(enemyTexture);
-	SDL_DestroyTexture(enemyHitTexture);
-	SDL_DestroyTexture(deadTexture);
-	SDL_DestroyTexture(bulletTexture);
-	SDL_DestroyTexture(pBulletTexture);
-	SDL_DestroyTexture(bgTexture);
-	SDL_DestroyTexture(bossTexture);
-	SDL_DestroyTexture(bossKilledTexture);
 };
 void Stage::HandleEvents()
 {
+	
 	SDL_Event event;
 	if (SDL_PollEvent(&event)) {
 		switch (event.type) {
@@ -48,7 +44,7 @@ void Stage::Update() {
 }
 void Stage::Render() {
 	SDL_RenderClear(g_renderer);
-	SDL_RenderCopy(g_renderer, bgTexture, &bgSrcRect, &bgRect);
+	//SDL_RenderCopy(g_renderer, bgTexture, &bgSrcRect, &bgRect);
 	//back_cloudlist->render(); //back cloiud
 	/*if (boss != NULL) {
 		boss->renderBoss(bossTexture);
@@ -65,24 +61,17 @@ void Stage::Render() {
 	renderLevelUpUI();
 	SDL_RenderPresent(g_renderer);*/
 }
-void Stage::statUpClickCheck(SDL_Event event) {
-	if (isLevelUp == true) {
-		if (event.button.y >= 275 && event.button.y <= 425) {
-			if (event.button.x >= 200 && event.button.x <= 350) {
-				statUp(statSelction[0]);
-			}
-			else if (event.button.x >= 425 && event.button.x <= 575) {
-				statUp(statSelction[1]);
-
-			}
-			else if (event.button.x >= 650 && event.button.x <= 800) {
-				statUp(statSelction[2]);
-
-			}
-		}
-	}
-}
-void Stage::renderUI() {
+//void Stage::statUpClickCheck(SDL_Event event) {
+//	if (isLevelUp == true) {
+//		if (event.button.y >= 275 && event.button.y <= 425) {
+//			if (event.button.x >= 200 && event.button.x <= 350) {
+//				statUp(statSelction[0]);
+//			}
+//			}
+//		}
+//	}
+//}
+//void Stage::renderUI() {
 //	if (bossTimer < 90000) {
 //		SDL_RenderCopy(g_renderer, bossTimerTexture, &bossTimerSrcRect, &bossTimerBarRect);
 //		SDL_RenderCopy(g_renderer, player->dogTexture, &bossTimerSqrSrcRect, &bossTimerSqrRect);
@@ -198,4 +187,22 @@ void Stage::renderUI() {
 //		SDL_FreeSurface(surface);
 //		SDL_DestroyTexture(levelUITexture);
 //	}
+//}
+
+void Stage::reasoning() {
+	if (agnt.stk.empty() && agnt.havingGold) {
+		//금이 있고 1,1에 도착
+		agnt.climb();
+		return;
+	}
+	if (agnt.havingGold) {
+		//금이 있음
+		if (agnt.frontPosX != agnt.stk.top().first || agnt.frontPosY != agnt.stk.top().second) {
+			//왔던 타일을 바라보고 있지 않을 경우
+			agnt.turnRight();
+			return;
+		}
+		agnt.goForward();
+		return;
+	}
 }

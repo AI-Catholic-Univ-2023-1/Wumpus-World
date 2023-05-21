@@ -5,9 +5,12 @@
 using namespace std;
 
 class Agent {
+public:
 	bool bump = false;
 	int posX = 1;
 	int posY = 1;
+	int frontPosX;
+	int frontPosY;
 	int worldDirection;
 	int grid[6][6];
 	int visited[6][6] = {0,};
@@ -20,6 +23,7 @@ class Agent {
 	int leftState;
 	int rightState;
 
+	Agent();
 	void goForward();
 	void turnLeft();
 	void turnRight();

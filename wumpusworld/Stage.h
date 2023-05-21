@@ -3,6 +3,8 @@
 #define __STAGE_H
 #include "Game.h"
 #include <windows.h>
+#include "Agent.h"
+#include "Environment.h"
 
 
 class Stage : public PhaseInterface
@@ -17,13 +19,17 @@ protected:
 	SDL_Color white = { 255,255,255,0 };
 
 
+public:
+	Environment env;
+	Agent agnt;
 
-public: 
+	Stage();
 	~Stage();
 
 	void HandleEvents();
 	void Update();
 	void Render();
+	void reasoning();
 };
 
 #endif
