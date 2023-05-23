@@ -12,6 +12,7 @@ Uint32 g_last_time_ms;
 //SDL_Texture* bossTimerTexture;
 TTF_Font* font;
 PhaseInterface* game_phases[4];
+Agent* agent;
 //
 
 //Mix_Chunk* hitSFX;
@@ -46,7 +47,7 @@ int main(int argc, char* argv[])
 		//hitSFX = Mix_LoadWAV("Resources/sounds/hit.wav");
 		//Mix_VolumeChunk(hitSFX, 10);
 	}
-
+	agent = new Agent();
 	InitGame();
 	g_last_time_ms = SDL_GetTicks();
 

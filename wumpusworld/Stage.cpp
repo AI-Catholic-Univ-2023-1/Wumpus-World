@@ -190,19 +190,50 @@ void Stage::Render() {
 //}
 
 void Stage::reasoning() {
-	if (agnt.stk.empty() && agnt.havingGold) {
-		//금이 있고 1,1에 도착
-		agnt.climb();
+}
+void Stage::setWumpus() {
+
+};
+void Stage::setPit() {
+
+}
+void Stage::setGold() {
+
+}
+void Stage::process() {
+
+	int x = agent->posX;
+	int y = agent->posY;
+	if (grid[x][y][wumpus] == 1) {
+		agent->die();
+		agent->setGrid(x, y, wumpus, true);
 		return;
 	}
-	if (agnt.havingGold) {
-		//금이 있음
-		if (agnt.frontPosX != agnt.stk.top().first || agnt.frontPosY != agnt.stk.top().second) {
-			//왔던 타일을 바라보고 있지 않을 경우
-			agnt.turnRight();
-			return;
-		}
-		agnt.goForward();
+	else if (grid[x][y][breeze] == 1) {
+		agent->die();
+		agent->setGrid(x, y, pit, true);
 		return;
 	}
+
+	bool stench;
+	bool breeze;
+	bool glitter;
+	bool bump;
+	stench = grid[x][y][stench];
+	breeze = grid[x][y][breeze];
+	glitter = grid[x][y][glitter];
+	bump = grid[x][y][bump];
+	action = agent->reasoning(stench, breeze, glitter, bump);
+
+	if (action == 1) {
+		//화살이 날아가서 환경에 변화가 있는지
+	}
+	if (action == 2) {
+		// 금을 주운 후
+	}
+	if (action == 3) {
+		//금이 있으면 성공 없으면 실패
+		//종료
+	}
+	return;
 }

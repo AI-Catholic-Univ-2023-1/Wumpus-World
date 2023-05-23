@@ -10,6 +10,8 @@
 #include "SDL_image.h"
 #include "SDL_ttf.h"
 #include "SDL_mixer.h"
+#include"Agent.h"
+#include"Grid.h"
 //
 //namespace DIRECTION {
 //	enum {
@@ -34,6 +36,7 @@ void ClearGame();
 
 class PhaseInterface;
 
+extern Agent* agent;
 extern int g_current_game_phase;
 extern bool g_flag_running;
 extern SDL_Renderer* g_renderer;
