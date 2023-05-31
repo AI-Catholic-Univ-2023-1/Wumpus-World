@@ -1,4 +1,5 @@
 #include "Stage.h"
+#include<stdlib.h>
 Stage::Stage() {
 	
 }
@@ -192,13 +193,58 @@ void Stage::Render() {
 void Stage::reasoning() {
 }
 void Stage::setWumpus() {
-
+	for (int x = 1; x <= 4; x++) {
+		for (int y = 1; y <= 4; y++) {
+			if (x == 1 && y == 1) continue;
+			else if (x == 1 && y == 2) continue;
+			else if (x == 2 && y == 1) continue;
+			else if (x == 4 && y == 4) continue;
+			int random = rand() % 10;
+			if (random == 0) {
+				grid[x][y][wumpus] = true;
+			}
+		}
+	}
 };
 void Stage::setPit() {
-
+	for (int x = 1; x <= 4; x++) {
+		for (int y = 1; y <= 4; y++) {
+			if (x == 1 && y == 1) continue;
+			else if (x == 1 && y == 2) continue;
+			else if (x == 2 && y == 1) continue;
+			else if (x == 4 && y == 4) continue;
+			else if (grid[x][y][wumpus] == true) continue;
+			int random = rand() % 10;
+			if (random == 0) {
+				grid[x][y][pit] = true;
+			}
+		}
+	}
 }
 void Stage::setGold() {
-
+	grid[4][4][gold] = true;
+}
+void Stage::setWall() {
+	grid[0][0][wall] = true;
+	grid[0][1][wall] = true;
+	grid[0][2][wall] = true;
+	grid[0][3][wall] = true;
+	grid[0][4][wall] = true;
+	grid[0][5][wall] = true;
+	grid[1][0][wall] = true;
+	grid[2][0][wall] = true;
+	grid[3][0][wall] = true;
+	grid[4][0][wall] = true;
+	grid[5][0][wall] = true;
+	grid[5][1][wall] = true;
+	grid[5][2][wall] = true;
+	grid[5][3][wall] = true;
+	grid[5][4][wall] = true;
+	grid[5][5][wall] = true;
+	grid[4][5][wall] = true;
+	grid[3][5][wall] = true;
+	grid[2][5][wall] = true;
+	grid[1][5][wall] = true;
 }
 void Stage::process() {
 
@@ -230,6 +276,7 @@ void Stage::process() {
 	}
 	if (action == 2) {
 		// 금을 주운 후
+		grid[4][4][gold] = false;
 	}
 	if (action == 3) {
 		//금이 있으면 성공 없으면 실패

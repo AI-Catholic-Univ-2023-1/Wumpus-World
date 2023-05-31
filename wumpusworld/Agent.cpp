@@ -11,6 +11,7 @@ Agent::Agent() {
 			frontPosRow--;
 			backPosRow--;
 			leftPosRow--;
+			rightPosRow--;
 		}
 		else if (direction == south) {
 			posRow++;
@@ -41,6 +42,7 @@ Agent::Agent() {
 			frontPosRow--;
 			backPosRow--;
 			leftPosRow--;
+			rightPosRow--;
 		}
 		else if (direction == south) {
 			posRow++;
@@ -117,13 +119,40 @@ Agent::Agent() {
 
 	}
 	void Agent::setGrid(int x, int y, int state, bool t) {
-
+		grid[x][y][state] = t;
 	}
 	void Agent::goBackward() {
-
+		if (direction == north) {
+			posRow++;
+			frontPosRow++;
+			backPosRow++;
+			leftPosRow++;
+			rightPosRow++;
+		}
+		else if (direction == south) {
+			posRow--;
+			frontPosRow--;
+			backPosRow--;
+			leftPosRow--;
+			rightPosRow--;
+		}
+		else if (direction == east) {
+			posCol--;
+			frontPosCol--;
+			backPosCol--;
+			leftPosCol--;
+			rightPosCol--;
+		}
+		else if (direction == west) {
+			posCol++;
+			frontPosCol++;
+			backPosCol++;
+			leftPosCol++;
+			rightPosCol++;
+		}
 	}
-	bool Agent::isGrid(int x, int y, int state) {
-
+	bool Agent::isGrid(int x, int y, int state)
+		return [x][y][state];
 	}
 	int Agent::reasoning(bool stench, bool breeze, bool glitter, bool bump) {
 		if (bump == true) {
