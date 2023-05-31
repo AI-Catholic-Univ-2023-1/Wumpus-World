@@ -202,8 +202,8 @@ void Stage::setGold() {
 }
 void Stage::process() {
 
-	int x = agent->posX;
-	int y = agent->posY;
+	int x = agent->posRow;
+	int y = agent->posCol;
 	if (grid[x][y][wumpus] == 1) {
 		agent->die();
 		agent->setGrid(x, y, wumpus, true);

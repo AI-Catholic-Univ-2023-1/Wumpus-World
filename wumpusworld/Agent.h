@@ -8,27 +8,23 @@ using namespace std;
 class Agent {
 public:
 	bool bump = false;
-	int posX = 1;
-	int posY = 1;
-	int frontPosX;
-	int frontPosY;
-	int leftPosX;
-	int leftPosY;
-	int rightPosX;
-	int rightPosY;
-	int backPosX;
-	int backPosY;
-	int worldDirection;
+	int posRow = 1;
+	int posCol = 1;
+	int frontPosRow;
+	int frontPosCol;
+	int leftPosRow;
+	int leftPosCol;
+	int rightPosRow;
+	int rightPosCol;
+	int backPosRow;
+	int backPosCol;
+	int direction;
 	int grid[6][6][7]; //x,y,state 
 	int visited[6][6] = {0,};
 	int arrows = 2;
 	bool havingGold = false;
 	bool dead = false;
 	stack<pair<int, int>> stk; //way so far
-	int frontState;
-	int backState;
-	int leftState;
-	int rightState;
 	bool end;
 	bool shot = false;
 
@@ -39,8 +35,8 @@ public:
 	void goForwardWithoutStacking();
 	void turnLeft();
 	void turnRight();
-	void climb();
 	void shoot();
+	void climb();
 	void grab();
 	void die();
 	void goBackward();
