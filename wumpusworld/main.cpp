@@ -1,6 +1,6 @@
-
+ 
 #include "Game.h"
-
+#include "Stage.h"
 
 /////////////////////////////////////////////////
 // Declaration
@@ -12,6 +12,7 @@ Uint32 g_last_time_ms;
 //SDL_Texture* bossTimerTexture;
 TTF_Font* font;
 PhaseInterface* game_phases[4];
+PhaseInterface* stage;
 Agent* agent;
 //
 
@@ -32,7 +33,7 @@ int main(int argc, char* argv[])
 	}
 	font = TTF_OpenFont("Resources/DungGeunMo.ttf", 48);
 
-	g_window = SDL_CreateWindow("Dogfight", 300, 50, 1000, 750, 0);
+	g_window = SDL_CreateWindow("WumpusWorld", 300, 50, 1000, 750, 0);
 	g_renderer = SDL_CreateRenderer(g_window, -1, 0);
 
 	{
@@ -54,16 +55,16 @@ int main(int argc, char* argv[])
 	g_current_game_phase = PHASE_INTRO;
 	//Mix_PlayMusic(game_phases[0]->bgm, -1);
 	//Mix_VolumeMusic(50);
-
+	stage = new Stage;
 	while ( g_flag_running )
 	{
 		Uint32 cur_time_ms = SDL_GetTicks();
 
 		if ( cur_time_ms-g_last_time_ms < 33 )
 			continue;
-		game_phases[g_current_game_phase]->HandleEvents();
-		game_phases[g_current_game_phase]->Update();
-		game_phases[g_current_game_phase]->Render();
+		stage->HandleEvents();
+		stage->Update();
+		stage->Render();
 		/*if (g_current_game_phase < 4) {
 		}
 		else {

@@ -43,6 +43,7 @@ extern SDL_Renderer* g_renderer;
 extern SDL_Window* g_window;
 extern bool changingStage;
 extern PhaseInterface* game_phases[4];
+extern PhaseInterface* stage;
 //extern SDL_Texture* bossTimerTexture;
 //extern TTF_Font* font;
 

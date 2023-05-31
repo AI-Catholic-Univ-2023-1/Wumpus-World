@@ -46,20 +46,4 @@
     <None Include="ClassDiagram.cd" />
     <None Include="ClassDiagram1.cd" />
   </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Dogfight.rc">
-      <Filter>리소스 파일</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Resources\ico.ico">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="Resources\sico.ico">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="Resources\sico.png">
-      <Filter>리소스 파일</Filter>
-    </Image>
-  </ItemGroup>
 </Project>

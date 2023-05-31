@@ -158,14 +158,6 @@
     <None Include="ClassDiagram.cd" />
     <None Include="ClassDiagram1.cd" />
   </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Dogfight.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Resources\ico.ico" />
-    <Image Include="Resources\sico.ico" />
-    <Image Include="Resources\sico.png" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
