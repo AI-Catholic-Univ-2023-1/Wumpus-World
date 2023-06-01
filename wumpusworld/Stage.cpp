@@ -273,6 +273,46 @@ void Stage::process() {
 
 	if (action == 1) {
 		//화살이 날아가서 환경에 변화가 있는지
+		if (agent->direction == north) {
+			//agent->posRow++;
+			for (int arrow = agent->posRow; arrow <= 4; arrow++) {
+				if (grid[arrow][agent->posCol][wumpus] == true) {
+					grid[arrow][agent->posCol][wumpus] = false;
+					//스크림 울려퍼지게
+					break;
+				}
+			}
+		}
+		else if (agent->direction == south) {
+			//agent->posRow--;
+			for (int arrow = agent->posRow; arrow >= 1; arrow--) {
+				if (grid[arrow][agent->posCol][wumpus] == true) {
+					grid[arrow][agent->posCol][wumpus] = false;
+					//스크림 울려퍼지게
+					break;
+				}
+			}
+		}
+		else if (agent->direction == east) {
+			//agent->posCol++;
+			for (int arrow = agent->posCol; arrow <= 4; arrow++) {
+				if (grid[agent->posRow][arrow][wumpus] == true) {
+					grid[agent->posRow][arrow][wumpus] = false;
+					//스크림 울려퍼지게
+					break;
+				}
+			}
+		}
+		else if (agent->direction == west) {
+			//agent->posCol--;
+			for (int arrow = agent->posCol; arrow >= 1; arrow--) {
+				if (grid[agent->posRow][arrow][wumpus] == true) {
+					grid[agent->posRow][arrow][wumpus] = false;
+					//스크림 울려퍼지게
+					break;
+				}
+			}
+		}
 	}
 	if (action == 2) {
 		// 금을 주운 후

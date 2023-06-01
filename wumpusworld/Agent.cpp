@@ -6,14 +6,14 @@ Agent::Agent() {
 	void Agent::goForward() {
 		shot = false;
 		stk.push(pair<int,int>(posRow, posCol));
-		if (direction == north) {
+		if (direction == south) {
 			posRow--;
 			frontPosRow--;
 			backPosRow--;
 			leftPosRow--;
 			rightPosRow--;
 		}
-		else if (direction == south) {
+		else if (direction == north) {
 			posRow++;
 			frontPosRow++;
 			backPosRow++;
@@ -37,14 +37,14 @@ Agent::Agent() {
 	}
 	void Agent::goForwardWithoutStacking() {
 		shot = false;
-		if (direction == north) {
+		if (direction == south) {
 			posRow--;
 			frontPosRow--;
 			backPosRow--;
 			leftPosRow--;
 			rightPosRow--;
 		}
-		else if (direction == south) {
+		else if (direction == north) {
 			posRow++;
 			frontPosRow++;
 			backPosRow++;
@@ -116,20 +116,33 @@ Agent::Agent() {
 		havingGold = true;
 	}
 	void Agent::die() {
-
+		//위치 1,1로 옮기기
+		posRow = 1;
+		posCol = 1;
+		direction = east;
+		frontPosRow = posRow;
+		frontPosCol = posCol + 1;
+		leftPosRow = posRow + 1;
+		leftPosCol = posCol;
+		rightPosRow = posRow - 1;
+		rightPosCol = posCol;
+		backPosRow = posRow;
+		backPosCol = posCol - 1;
+		//스택초기화
+		stack<pair<int, int>> stk;
 	}
 	void Agent::setGrid(int x, int y, int state, bool t) {
 		grid[x][y][state] = t;
 	}
 	void Agent::goBackward() {
-		if (direction == north) {
+		if (direction == south) {
 			posRow++;
 			frontPosRow++;
 			backPosRow++;
 			leftPosRow++;
 			rightPosRow++;
 		}
-		else if (direction == south) {
+		else if (direction == north) {
 			posRow--;
 			frontPosRow--;
 			backPosRow--;
