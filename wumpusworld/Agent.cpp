@@ -128,6 +128,8 @@ Agent::Agent() {
 		rightPosCol = posCol;
 		backPosRow = posRow;
 		backPosCol = posCol - 1;
+		//화살개수 초기화
+		arrows = 2;
 		//스택초기화
 		stack<pair<int, int>> stk;
 	}
@@ -164,7 +166,7 @@ Agent::Agent() {
 			rightPosCol++;
 		}
 	}
-	bool Agent::isGrid(int x, int y, int state)
+	bool Agent::isGrid(int x, int y, int state) {
 		return [x][y][state];
 	}
 	int Agent::reasoning(bool stench, bool breeze, bool glitter, bool bump) {
