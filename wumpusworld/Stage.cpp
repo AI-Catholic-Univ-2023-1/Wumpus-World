@@ -199,6 +199,7 @@ void Stage::setWumpus() {
 			else if (x == 1 && y == 2) continue;
 			else if (x == 2 && y == 1) continue;
 			else if (x == 4 && y == 4) continue;
+			else if (grid[x][y][gold] == true) continue;
 			int random = rand() % 10;
 			if (random == 0) {
 				grid[x][y][wumpus] = true;
@@ -214,6 +215,7 @@ void Stage::setPit() {
 			else if (x == 2 && y == 1) continue;
 			else if (x == 4 && y == 4) continue;
 			else if (grid[x][y][wumpus] == true) continue;
+			else if (grid[x][y][gold] == true) continue;
 			int random = rand() % 10;
 			if (random == 0) {
 				grid[x][y][pit] = true;
@@ -222,7 +224,14 @@ void Stage::setPit() {
 	}
 }
 void Stage::setGold() {
-	grid[4][4][gold] = true;
+	while (true) {
+		int x = (rand() % 4) + 1;
+		int y = (rand() % 4) + 1;
+		if (x != 1 && y != 1) {
+			grid[x][y][gold] = true;
+			return;
+		}
+	}
 }
 void Stage::setWall() {
 	grid[0][0][wall] = true;
@@ -275,7 +284,7 @@ void Stage::process() {
 		//화살이 날아가서 환경에 변화가 있는지
 		if (agent->direction == north) {
 			//agent->posRow++;
-			for (int arrow = agent->posRow; arrow <= 4; arrow++) {
+			for (int arrow = agent->posRow; arrow >= 1; arrow--) {
 				if (grid[arrow][agent->posCol][wumpus] == true) {
 					grid[arrow][agent->posCol][wumpus] = false;
 					//스크림 울려퍼지게
@@ -285,7 +294,7 @@ void Stage::process() {
 		}
 		else if (agent->direction == south) {
 			//agent->posRow--;
-			for (int arrow = agent->posRow; arrow >= 1; arrow--) {
+			for (int arrow = agent->posRow; arrow <= 4; arrow++) {
 				if (grid[arrow][agent->posCol][wumpus] == true) {
 					grid[arrow][agent->posCol][wumpus] = false;
 					//스크림 울려퍼지게

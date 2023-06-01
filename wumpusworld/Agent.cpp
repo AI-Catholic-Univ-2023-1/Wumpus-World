@@ -6,14 +6,14 @@ Agent::Agent() {
 	void Agent::goForward() {
 		shot = false;
 		stk.push(pair<int,int>(posRow, posCol));
-		if (direction == south) {
+		if (direction == north) {
 			posRow--;
 			frontPosRow--;
 			backPosRow--;
 			leftPosRow--;
 			rightPosRow--;
 		}
-		else if (direction == north) {
+		else if (direction == south) {
 			posRow++;
 			frontPosRow++;
 			backPosRow++;
@@ -37,14 +37,14 @@ Agent::Agent() {
 	}
 	void Agent::goForwardWithoutStacking() {
 		shot = false;
-		if (direction == south) {
+		if (direction == north) {
 			posRow--;
 			frontPosRow--;
 			backPosRow--;
 			leftPosRow--;
 			rightPosRow--;
 		}
-		else if (direction == north) {
+		else if (direction == south) {
 			posRow++;
 			frontPosRow++;
 			backPosRow++;
@@ -137,14 +137,14 @@ Agent::Agent() {
 		grid[x][y][state] = t;
 	}
 	void Agent::goBackward() {
-		if (direction == south) {
+		if (direction == north) {
 			posRow++;
 			frontPosRow++;
 			backPosRow++;
 			leftPosRow++;
 			rightPosRow++;
 		}
-		else if (direction == north) {
+		else if (direction == south) {
 			posRow--;
 			frontPosRow--;
 			backPosRow--;
