@@ -167,7 +167,7 @@ Agent::Agent() {
 		}
 	}
 	bool Agent::isGrid(int x, int y, int state) {
-		return [x][y][state];
+		return grid[x][y][state];
 	}
 	int Agent::reasoning(bool stench, bool breeze, bool glitter, bool bump) {
 		if (bump == true) {

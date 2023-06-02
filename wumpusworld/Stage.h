@@ -2,6 +2,7 @@
 #ifndef __STAGE_H
 #define __STAGE_H
 #include "Game.h"
+#include "Grid.h"
 #include <windows.h>
 
 

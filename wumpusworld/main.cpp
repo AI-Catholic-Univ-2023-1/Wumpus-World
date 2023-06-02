@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
 	{
 		Uint32 cur_time_ms = SDL_GetTicks();
 
-		if ( cur_time_ms-g_last_time_ms < 33 )
+		if ( cur_time_ms-g_last_time_ms < 1000 ) //33=>60fps
 			continue;
 		stage->HandleEvents();
 		stage->Update();
