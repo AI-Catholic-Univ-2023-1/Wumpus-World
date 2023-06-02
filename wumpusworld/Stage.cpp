@@ -1,18 +1,77 @@
 #include "Stage.h"
 Stage::Stage() {
+	// Agent 이미지 로드
+	SDL_Surface* agent_surface = IMG_Load("../Resources/agent.png");				// 이미지 로드
+	agent_texture = SDL_CreateTextureFromSurface(g_renderer, agent_surface);		// 로드한 이미지를 텍스쳐로 만들기
+	SDL_FreeSurface(agent_surface);													// 로드한 이미지는 이제 사용 안하므로 삭제
+	agent_source_rect = { 0, 0 ,400 ,400 };											// 이미지에서 가져올 부분
+
 	// Wumpus 이미지 로드
-	SDL_Surface* wumpus_surface = IMG_Load("Resources/wumpus.png");					// 이미지 로드
-	cout << wumpus_surface;
-	wumpus_texture = SDL_CreateTextureFromSurface(g_renderer, wumpus_surface);		// 로드한 이미지를 텍스쳐로 만들기
-	SDL_FreeSurface(wumpus_surface);												// 로드한 이미지는 이제 사용 안하므로 삭제
-	wumpus_source_rect = { 0, 0 ,512 ,512 };										// 이미지에서 가져올 부분
-	wumpus_destination_rect = { 200, 200, 100, 100 };								// 게임 내에서 크기 설정
+	SDL_Surface* wumpus_surface = IMG_Load("../Resources/wumpus.png");
+	wumpus_texture = SDL_CreateTextureFromSurface(g_renderer, wumpus_surface);
+	SDL_FreeSurface(wumpus_surface);
+	wumpus_source_rect = { 0, 0 ,512 ,512 };
+
+	// Pit 이미지 로드
+	SDL_Surface* pit_surface = IMG_Load("../Resources/pit.png");
+	pit_texture = SDL_CreateTextureFromSurface(g_renderer, pit_surface);
+	SDL_FreeSurface(pit_surface);
+	pit_source_rect = { 0, 0 ,400 ,400 };
+
+	// Gold 이미지 로드
+	SDL_Surface* gold_surface = IMG_Load("../Resources/gold.png");
+	gold_texture = SDL_CreateTextureFromSurface(g_renderer, gold_surface);
+	SDL_FreeSurface(gold_surface);
+	gold_source_rect = { 0, 0 ,500 ,500 };
+
+
+
+	// *****************확인용*************************
+	// Wumpus, Pit, Gold 위치 안겹치게 랜덤으로 놓기
+	srand((unsigned int)time(NULL));
+
+	do {
+		wumpus_location[0] = rand() % 4;
+		wumpus_location[1] = rand() % 4;
+	} while (wumpus_location[0] == agent_location[0] && wumpus_location[1] == agent_location[1]);
+
+	do {
+		pit1_location[0] = rand() % 4;
+		pit1_location[1] = rand() % 4;
+	} while ((pit1_location[0] == agent_location[0] && pit1_location[1] == agent_location[1]) ||
+		(pit1_location[0] == wumpus_location[0] && pit1_location[1] == wumpus_location[1]));
+
+	do {
+		pit2_location[0] = rand() % 4;
+		pit2_location[1] = rand() % 4;
+	} while ((pit2_location[0] == agent_location[0] && pit2_location[1] == agent_location[1]) ||
+		(pit2_location[0] == wumpus_location[0] && pit2_location[1] == wumpus_location[1]) ||
+		(pit2_location[0] == pit1_location[0] && pit2_location[1] == pit1_location[1]));
+
+	do {
+		gold_location[0] = rand() % 4;
+		gold_location[1] = rand() % 4;
+	} while ((gold_location[0] == agent_location[0] && gold_location[1] == agent_location[1]) ||
+		(gold_location[0] == wumpus_location[0] && gold_location[1] == wumpus_location[1]) ||
+		(gold_location[0] == pit1_location[0] && gold_location[1] == pit1_location[1]) ||
+		(gold_location[0] == pit2_location[0] && gold_location[1] == pit2_location[1]));
+
+	// Debug
+	cout << "wumpus : " << wumpus_location[1] + 1 << " " << 4 - wumpus_location[0] << endl;
+	cout << "pit1 : " << pit1_location[1] + 1 << " " << 4 - pit1_location[0] << endl;
+	cout << "pit2 : " << pit2_location[1] + 1 << " " << 4 - pit2_location[0] << endl;
+	cout << "gold : " << gold_location[1] + 1 << " " << 4 - gold_location[0] << endl << endl;
 }
+
 Stage::~Stage() {
 	resetStage();
 	SDL_DestroyTexture(enemyTexture);
-	SDL_DestroyTexture(wumpus_texture);	// 텍스쳐 파괴
+	SDL_DestroyTexture(agent_texture);	// 텍스쳐 파괴
+	SDL_DestroyTexture(wumpus_texture);
+	SDL_DestroyTexture(pit_texture);
+	SDL_DestroyTexture(gold_texture);
 }
+
 void Stage::HandleEvents()
 {
 	
@@ -25,8 +84,26 @@ void Stage::HandleEvents()
 			break;
 
 		case SDL_KEYDOWN:
+			// Agent Roatation
 			if (event.key.keysym.sym == SDLK_SPACE) {
-				//player->setEvasion();
+				agent_rotation++;
+			}
+			// Agent Key Move
+			else if (event.key.keysym.sym == SDLK_UP) {
+				if (agent_location[VERTICAL] > 0 && agent_location[VERTICAL] <= 3)
+					agent_location[VERTICAL]--;
+			}
+			else if (event.key.keysym.sym == SDLK_DOWN) {
+				if (agent_location[VERTICAL] >= 0 && agent_location[VERTICAL] < 3)
+					agent_location[VERTICAL]++;
+			}
+			else if (event.key.keysym.sym == SDLK_RIGHT) {
+				if (agent_location[HORIZONTAL] >= 0 && agent_location[HORIZONTAL] < 3)
+					agent_location[HORIZONTAL]++;
+			}
+			else if (event.key.keysym.sym == SDLK_LEFT) {
+				if (agent_location[HORIZONTAL] > 0 && agent_location[HORIZONTAL] <= 3)
+					agent_location[HORIZONTAL]--;
 			}
 
 			break;
@@ -47,180 +124,43 @@ void Stage::HandleEvents()
 		}
 	}
 }
+
 void Stage::Update() {
 }
+
 void Stage::Render() {
 	// 화면 초기화
 	SDL_SetRenderDrawColor(g_renderer, 255, 255, 255, 255);
 	SDL_RenderClear(g_renderer);
 
 
-	// 4x4 Grid 출력
-	/*
+	// 4x4 Grid
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			// 사각형 위치 지정
 			grid_rect[i][j] = { (j + 1) * 125 + 50, i * 125 + 50, 100, 100 };
 
-			// 사각형 랜더
-			SDL_SetRenderDrawColor(g_renderer, 100, 100, 100, 255);
+			// 바깥 사각형
+			SDL_SetRenderDrawColor(g_renderer, 200, 200, 200, 255);
 			SDL_RenderFillRect(g_renderer, &grid_rect[i][j]);
+
+
+			// Agent, Wumpus, Pit, Gold 위치 설정
+			if (i == agent_location[VERTICAL] && j == agent_location[HORIZONTAL]) {
+				SDL_RenderCopyEx(g_renderer, agent_texture, &agent_source_rect, &grid_rect[i][j], agent_rotation * 90, NULL, SDL_FLIP_NONE);
+			}
+			else if (i == gold_location[0] && j == gold_location[1])
+				SDL_RenderCopy(g_renderer, gold_texture, &gold_source_rect, &grid_rect[i][j]);
+			else if (i == wumpus_location[0] && j == wumpus_location[1])
+				SDL_RenderCopy(g_renderer, wumpus_texture, &wumpus_source_rect, &grid_rect[i][j]);
+			else if ((i == pit1_location[0] && j == pit1_location[1])||(i == pit2_location[0] && j == pit2_location[1]))
+				SDL_RenderCopy(g_renderer, pit_texture, &pit_source_rect, &grid_rect[i][j]);
 		}
 	}
-	*/
 
-	// Wumpus 이미지 출력
-	SDL_RenderCopy(g_renderer, wumpus_texture, &wumpus_source_rect, &wumpus_destination_rect);
 
 	SDL_RenderPresent(g_renderer);
-	
-
-
-
-	//SDL_RenderCopy(g_renderer, bgTexture, &bgSrcRect, &bgRect);
-	//back_cloudlist->render(); //back cloiud
-	/*if (boss != NULL) {
-		boss->renderBoss(bossTexture);
-	}
-	renderEnemies(EListHead, enemyTexture, enemyHitTexture);
-	fuellist->render();		// Fuel Render
-	missilelist->render();	// missile Render
-	renderDead(DListHead, deadTexture,bossKilledTexture, player->killedTexture);
-	player->RenderCopy();
-	renderBullets(BListHead, bulletTexture);
-	renderPBullets(PBListHead, pBulletTexture);
-	front_cloudlist->render();	// back - player - front
-	renderUI();
-	renderLevelUpUI();
-	SDL_RenderPresent(g_renderer);*/
 }
-//void Stage::statUpClickCheck(SDL_Event event) {
-//	if (isLevelUp == true) {
-//		if (event.button.y >= 275 && event.button.y <= 425) {
-//			if (event.button.x >= 200 && event.button.x <= 350) {
-//				statUp(statSelction[0]);
-//			}
-//			}
-//		}
-//	}
-//}
-//void Stage::renderUI() {
-//	if (bossTimer < 90000) {
-//		SDL_RenderCopy(g_renderer, bossTimerTexture, &bossTimerSrcRect, &bossTimerBarRect);
-//		SDL_RenderCopy(g_renderer, player->dogTexture, &bossTimerSqrSrcRect, &bossTimerSqrRect);
-//		SDL_RenderCopy(g_renderer, bossTagTexture, &bossTagSrcRect, &bossTimerBossRect);
-//	}
-//	else {
-//		if (boss != NULL) {
-//			bossHPRect.w = boss->hp * (hpBarRect.w-8) / boss->maxHP;
-//			SDL_RenderCopy(g_renderer, barTexture, &barSrcRect, &bossHPBarRect);
-//			SDL_RenderCopy(g_renderer, bossHPTexture, &gageSrcRect, &bossHPRect);
-//			SDL_RenderCopy(g_renderer, barGlazeTexture, &barSrcRect, &bossHPBarRect);
-//			SDL_RenderCopy(g_renderer, bossTagTexture, &bossTagSrcRect, &bossTagRect);
-//		}
-//	}
-//	hpRect.w = player->getHP() * (hpBarRect.w - 8) / player->getMaxHP();
-//	SDL_RenderCopy(g_renderer, barTexture, &barSrcRect, &hpBarRect);
-//	SDL_RenderCopy(g_renderer, hpTexture, &gageSrcRect, &hpRect);
-//	SDL_RenderCopy(g_renderer, barGlazeTexture, &barSrcRect, &hpBarRect);
-//	if (player->P_GetEXP() <= player->P_GetNeedEXP())expRect.w = player->P_GetEXP() * (hpBarRect.w - 8) / player->P_GetNeedEXP();
-//	else expRect.w = (hpBarRect.w - 8);
-//	SDL_RenderCopy(g_renderer, barTexture, &barSrcRect, &expBarRect);
-//	SDL_RenderCopy(g_renderer, expTexture, &gageSrcRect, &expRect);
-//	SDL_RenderCopy(g_renderer, barGlazeTexture, &barSrcRect, &expBarRect);
-//
-//	{
-//		char temp[10];
-//		sprintf_s(temp, sizeof(temp), "LV.%02d", player->P_GetLevel());
-//		SDL_Surface* surface = TTF_RenderText_Blended(font, temp, black);
-//		SDL_Texture* levelUITexture = SDL_CreateTextureFromSurface(g_renderer, surface);
-//
-//		SDL_Rect levelSrcRect = { 0,0,surface->w,surface->h };
-//		SDL_Rect levelRect = { 100, 600, surface->w, surface->h };
-//
-//		SDL_RenderCopy(g_renderer, levelUITexture, &levelSrcRect, &levelRect);
-//		SDL_FreeSurface(surface);
-//		SDL_DestroyTexture(levelUITexture);
-//	}
-//	{
-//		SDL_Surface* surface = TTF_RenderUTF8_Blended(font, CW2A(L"부활", CP_UTF8), black);
-//		SDL_Texture* levelUITexture = SDL_CreateTextureFromSurface(g_renderer, surface);
-//
-//		SDL_Rect levelSrcRect = { 0,0,surface->w,surface->h };
-//		SDL_Rect levelRect = { 700, 600, surface->w, surface->h };
-//
-//		SDL_RenderCopy(g_renderer, levelUITexture, &levelSrcRect, &levelRect);
-//		SDL_FreeSurface(surface);
-//		SDL_DestroyTexture(levelUITexture);
-//	}
-//	{
-//		char temp[10];
-//		sprintf_s(temp, sizeof(temp), "%02d", player->getRebirthNum()); 
-//		SDL_Surface* surface = TTF_RenderText_Blended(font, temp, black);
-//		SDL_Texture* levelUITexture = SDL_CreateTextureFromSurface(g_renderer, surface);
-//
-//		SDL_Rect levelSrcRect = { 0,0,surface->w,surface->h };
-//		SDL_Rect levelRect = { 800, 600, surface->w, surface->h };
-//
-//		SDL_RenderCopy(g_renderer, levelUITexture, &levelSrcRect, &levelRect);
-//		SDL_FreeSurface(surface);
-//		SDL_DestroyTexture(levelUITexture);
-//	}
-//	if(player->dead==false)
-//	{
-//		char temp[10];
-//		sprintf_s(temp, sizeof(temp), "%d", player->getEvasionNum());
-//		SDL_Surface* surface = TTF_RenderText_Blended(font, temp, black);
-//		SDL_Texture* levelUITexture = SDL_CreateTextureFromSurface(g_renderer, surface);
-//
-//		SDL_Rect levelSrcRect = { 0,0,surface->w,surface->h };
-//		SDL_Rect levelRect = { player->getPosW()/2+player->getPosX()-5
-//			, player->getPosY() -30, surface->w/2, surface->h/2};
-//
-//		SDL_RenderCopy(g_renderer, levelUITexture, &levelSrcRect, &levelRect);
-//		SDL_FreeSurface(surface);
-//		SDL_DestroyTexture(levelUITexture);
-//	}
-//	if (bossTimer <2000) {
-//		char temp[10];
-//		sprintf_s(temp, sizeof(temp), "STAGE %d", enemyClass);
-//		SDL_Surface* surface = TTF_RenderText_Blended(font, temp, black);
-//		SDL_Texture* levelUITexture = SDL_CreateTextureFromSurface(g_renderer, surface);
-//
-//		SDL_Rect levelSrcRect = { 0,0,surface->w,surface->h };
-//		SDL_Rect levelRect = { 350, 300, surface->w * 2, surface->h * 2 };
-//
-//		SDL_RenderCopy(g_renderer, levelUITexture, &levelSrcRect, &levelRect);
-//		SDL_FreeSurface(surface);
-//		SDL_DestroyTexture(levelUITexture);
-//	}
-//	if (boss!=NULL) {
-//		if (boss->pos.x > 850) {
-//			SDL_RenderCopy(g_renderer, halfTransparentBlackTexture, &bossTimerSrcRect, &bgRect);
-//			SDL_Surface* surface = TTF_RenderUTF8_Blended(font, CW2A(L"BOSS ALERT", CP_UTF8), white);
-//			SDL_Texture* levelUITexture = SDL_CreateTextureFromSurface(g_renderer, surface);
-//
-//			SDL_Rect levelSrcRect = { 0,0,surface->w,surface->h };
-//			SDL_Rect levelRect = { 300, 300, surface->w * 2, surface->h * 2 };
-//
-//			SDL_RenderCopy(g_renderer, levelUITexture, &levelSrcRect, &levelRect);
-//			SDL_FreeSurface(surface);
-//			SDL_DestroyTexture(levelUITexture);
-//		}
-//	}
-//	if (isPaused == true) {
-//		SDL_RenderCopy(g_renderer, halfTransparentBlackTexture, &bossTimerSrcRect, &bgRect);
-//		SDL_Surface* surface = TTF_RenderUTF8_Blended(font, CW2A(L"PAUSED", CP_UTF8), white);
-//		SDL_Texture* levelUITexture = SDL_CreateTextureFromSurface(g_renderer, surface);
-//
-//		SDL_Rect levelSrcRect = { 0,0,surface->w,surface->h };
-//		SDL_Rect levelRect = { 350, 300, surface->w*2, surface->h*2 };
-//
-//		SDL_RenderCopy(g_renderer, levelUITexture, &levelSrcRect, &levelRect);
-//		SDL_FreeSurface(surface);
-//		SDL_DestroyTexture(levelUITexture);
-//	}
-//}
 
 void Stage::reasoning() {
 }
