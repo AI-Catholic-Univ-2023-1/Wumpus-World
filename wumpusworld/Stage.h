@@ -61,6 +61,7 @@ public:
 	void setWumpus();
 	void setPit();
 	void setGold();
+	void setWall();
 	void process();
 };
 

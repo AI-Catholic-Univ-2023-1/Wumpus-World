@@ -1,4 +1,5 @@
 #include "Stage.h"
+#include<stdlib.h>
 Stage::Stage() {
 	// Agent 이미지 로드
 	SDL_Surface* agent_surface = IMG_Load("../Resources/agent.png");				// 이미지 로드
@@ -165,13 +166,67 @@ void Stage::Render() {
 void Stage::reasoning() {
 }
 void Stage::setWumpus() {
-
+	for (int x = 1; x <= 4; x++) {
+		for (int y = 1; y <= 4; y++) {
+			if (x == 1 && y == 1) continue;
+			else if (x == 1 && y == 2) continue;
+			else if (x == 2 && y == 1) continue;
+			else if (x == 4 && y == 4) continue;
+			else if (grid[x][y][gold] == true) continue;
+			int random = rand() % 10;
+			if (random == 0) {
+				grid[x][y][wumpus] = true;
+			}
+		}
+	}
 };
 void Stage::setPit() {
-
+	for (int x = 1; x <= 4; x++) {
+		for (int y = 1; y <= 4; y++) {
+			if (x == 1 && y == 1) continue;
+			else if (x == 1 && y == 2) continue;
+			else if (x == 2 && y == 1) continue;
+			else if (x == 4 && y == 4) continue;
+			else if (grid[x][y][wumpus] == true) continue;
+			else if (grid[x][y][gold] == true) continue;
+			int random = rand() % 10;
+			if (random == 0) {
+				grid[x][y][pit] = true;
+			}
+		}
+	}
 }
 void Stage::setGold() {
-
+	while (true) {
+		int x = (rand() % 4) + 1;
+		int y = (rand() % 4) + 1;
+		if (x != 1 && y != 1) {
+			grid[x][y][gold] = true;
+			return;
+		}
+	}
+}
+void Stage::setWall() {
+	grid[0][0][wall] = true;
+	grid[0][1][wall] = true;
+	grid[0][2][wall] = true;
+	grid[0][3][wall] = true;
+	grid[0][4][wall] = true;
+	grid[0][5][wall] = true;
+	grid[1][0][wall] = true;
+	grid[2][0][wall] = true;
+	grid[3][0][wall] = true;
+	grid[4][0][wall] = true;
+	grid[5][0][wall] = true;
+	grid[5][1][wall] = true;
+	grid[5][2][wall] = true;
+	grid[5][3][wall] = true;
+	grid[5][4][wall] = true;
+	grid[5][5][wall] = true;
+	grid[4][5][wall] = true;
+	grid[3][5][wall] = true;
+	grid[2][5][wall] = true;
+	grid[1][5][wall] = true;
 }
 void Stage::process() {
 
@@ -200,9 +255,50 @@ void Stage::process() {
 
 	if (action == 1) {
 		//화살이 날아가서 환경에 변화가 있는지
+		if (agent->direction == north) {
+			//agent->posRow++;
+			for (int arrow = agent->posRow; arrow >= 1; arrow--) {
+				if (grid[arrow][agent->posCol][wumpus] == true) {
+					grid[arrow][agent->posCol][wumpus] = false;
+					//스크림 울려퍼지게
+					break;
+				}
+			}
+		}
+		else if (agent->direction == south) {
+			//agent->posRow--;
+			for (int arrow = agent->posRow; arrow <= 4; arrow++) {
+				if (grid[arrow][agent->posCol][wumpus] == true) {
+					grid[arrow][agent->posCol][wumpus] = false;
+					//스크림 울려퍼지게
+					break;
+				}
+			}
+		}
+		else if (agent->direction == east) {
+			//agent->posCol++;
+			for (int arrow = agent->posCol; arrow <= 4; arrow++) {
+				if (grid[agent->posRow][arrow][wumpus] == true) {
+					grid[agent->posRow][arrow][wumpus] = false;
+					//스크림 울려퍼지게
+					break;
+				}
+			}
+		}
+		else if (agent->direction == west) {
+			//agent->posCol--;
+			for (int arrow = agent->posCol; arrow >= 1; arrow--) {
+				if (grid[agent->posRow][arrow][wumpus] == true) {
+					grid[agent->posRow][arrow][wumpus] = false;
+					//스크림 울려퍼지게
+					break;
+				}
+			}
+		}
 	}
 	if (action == 2) {
 		// 금을 주운 후
+		grid[4][4][gold] = false;
 	}
 	if (action == 3) {
 		//금이 있으면 성공 없으면 실패

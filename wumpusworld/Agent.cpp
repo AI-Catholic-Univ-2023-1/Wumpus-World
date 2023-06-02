@@ -11,6 +11,7 @@ Agent::Agent() {
 			frontPosRow--;
 			backPosRow--;
 			leftPosRow--;
+			rightPosRow--;
 		}
 		else if (direction == south) {
 			posRow++;
@@ -41,6 +42,7 @@ Agent::Agent() {
 			frontPosRow--;
 			backPosRow--;
 			leftPosRow--;
+			rightPosRow--;
 		}
 		else if (direction == south) {
 			posRow++;
@@ -114,16 +116,58 @@ Agent::Agent() {
 		havingGold = true;
 	}
 	void Agent::die() {
-
+		//위치 1,1로 옮기기
+		posRow = 1;
+		posCol = 1;
+		direction = east;
+		frontPosRow = posRow;
+		frontPosCol = posCol + 1;
+		leftPosRow = posRow + 1;
+		leftPosCol = posCol;
+		rightPosRow = posRow - 1;
+		rightPosCol = posCol;
+		backPosRow = posRow;
+		backPosCol = posCol - 1;
+		//화살개수 초기화
+		arrows = 2;
+		//스택초기화
+		stack<pair<int, int>> stk;
 	}
 	void Agent::setGrid(int x, int y, int state, bool t) {
-
+		grid[x][y][state] = t;
 	}
 	void Agent::goBackward() {
-
+		if (direction == north) {
+			posRow++;
+			frontPosRow++;
+			backPosRow++;
+			leftPosRow++;
+			rightPosRow++;
+		}
+		else if (direction == south) {
+			posRow--;
+			frontPosRow--;
+			backPosRow--;
+			leftPosRow--;
+			rightPosRow--;
+		}
+		else if (direction == east) {
+			posCol--;
+			frontPosCol--;
+			backPosCol--;
+			leftPosCol--;
+			rightPosCol--;
+		}
+		else if (direction == west) {
+			posCol++;
+			frontPosCol++;
+			backPosCol++;
+			leftPosCol++;
+			rightPosCol++;
+		}
 	}
 	bool Agent::isGrid(int x, int y, int state) {
-
+		return [x][y][state];
 	}
 	int Agent::reasoning(bool stench, bool breeze, bool glitter, bool bump) {
 		if (bump == true) {
