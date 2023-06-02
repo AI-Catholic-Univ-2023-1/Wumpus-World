@@ -47,7 +47,7 @@ protected:
 	int gold_location[2] = { 0,0 };
 
 public:
-	int grid[6][6][7];//x,y,state
+	int grid[6][6][8];//x,y,state
 	int xarr[4] = { 1,-1,0,0 };
 	int yarr[4] = { 0,0,1,-1 };
 	int action = 0;

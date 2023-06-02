@@ -1,42 +1,48 @@
 #include "Agent.h"
 
 Agent::Agent() {
-
+	
 }
-	void Agent::goForward() {
-		shot = false;
-		stk.push(pair<int,int>(posRow, posCol));
-		if (direction == north) {
-			posRow--;
-			frontPosRow--;
-			backPosRow--;
-			leftPosRow--;
-			rightPosRow--;
-		}
-		else if (direction == south) {
-			posRow++;
-			frontPosRow++;
-			backPosRow++;
-			leftPosRow++;
-			rightPosRow++;
-		}
-		else if (direction == east) {
-			posCol++;
-			frontPosCol++;
-			backPosCol++;
-			leftPosCol++;
-			rightPosCol++;
-		}
-		else if (direction == west) {
-			posCol--;
-			frontPosCol--;
-			backPosCol--;
-			leftPosCol--;
-			rightPosCol--;
-		}
+void Agent::printState() {
+	cout << "direction = " << direction<<"\n";
+	cout << "row = " << posRow << "\n";
+	cout << "col = " << posCol << "\n";
+}
+void Agent::goForward() {
+	shot = false;
+	stk.push(pair<int, int>(posRow, posCol));
+	if (direction == north) {
+		posRow--;
+		frontPosRow--;
+		backPosRow--;
+		leftPosRow--;
+		rightPosRow--;
 	}
+	else if (direction == south) {
+		posRow++;
+		frontPosRow++;
+		backPosRow++;
+		leftPosRow++;
+		rightPosRow++;
+	}
+	else if (direction == east) {
+		posCol++;
+		frontPosCol++;
+		backPosCol++;
+		leftPosCol++;
+		rightPosCol++;
+	}
+	else if (direction == west) {
+		posCol--;
+		frontPosCol--;
+		backPosCol--;
+		leftPosCol--;
+		rightPosCol--;
+	}
+}
 	void Agent::goForwardWithoutStacking() {
 		shot = false;
+		stk.pop();
 		if (direction == north) {
 			posRow--;
 			frontPosRow--;
@@ -117,7 +123,7 @@ Agent::Agent() {
 	}
 	void Agent::die() {
 		//위치 1,1로 옮기기
-		posRow = 1;
+		posRow = 4;
 		posCol = 1;
 		direction = east;
 		frontPosRow = posRow;
@@ -131,12 +137,21 @@ Agent::Agent() {
 		//화살개수 초기화
 		arrows = 2;
 		//스택초기화
-		stack<pair<int, int>> stk;
+		while (!stk.empty()) {
+			stk.pop();
+		}
+		//visited 초기화
+		for (int i = 0; i < 6; i++) {
+			for (int j = 0; j < 6; j++) {
+				visited[i][j] = false;
+			}
+		}
 	}
 	void Agent::setGrid(int x, int y, int state, bool t) {
 		grid[x][y][state] = t;
 	}
 	void Agent::goBackward() {
+		stk.pop();
 		if (direction == north) {
 			posRow++;
 			frontPosRow++;
@@ -237,9 +252,9 @@ Agent::Agent() {
 		if (visited[frontPosRow][frontPosCol] == true) {
 			//앞이 방문한 타일일 경우
 			if (
-				(isGrid(backPosRow, backPosCol, wall) == true || isGrid(backPosRow, backPosCol, pit) == true || visited[backPosRow][backPosCol]==true) &&
-				(isGrid(leftPosRow, leftPosCol, wall) == true || isGrid(leftPosRow,leftPosCol,pit) == true|| visited[leftPosRow][leftPosCol]==true) &&
-				(isGrid(rightPosRow, rightPosCol, wall) == true || isGrid(rightPosRow,rightPosCol,pit)==true|| visited[rightPosRow][rightPosCol]==true)
+				(isGrid(backPosRow, backPosCol, wall) == true || isGrid(backPosRow, backPosCol, pit) == true || visited[backPosRow][backPosCol] == true) &&
+				(isGrid(leftPosRow, leftPosCol, wall) == true || isGrid(leftPosRow, leftPosCol, pit) == true || visited[leftPosRow][leftPosCol] == true) &&
+				(isGrid(rightPosRow, rightPosCol, wall) == true || isGrid(rightPosRow, rightPosCol, pit) == true || visited[rightPosRow][rightPosCol] == true)
 				) {
 				//뒤, 좌, 우 방문불가(Pit 또는 벽 또는 방문함)
 				if (frontPosRow != stk.top().first || frontPosCol != stk.top().second) {
@@ -295,3 +310,4 @@ Agent::Agent() {
 		goForward();
 		return 0;
 	}
+	

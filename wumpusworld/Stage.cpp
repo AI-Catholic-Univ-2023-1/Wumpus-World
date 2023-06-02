@@ -25,10 +25,11 @@ Stage::Stage() {
 	SDL_FreeSurface(gold_surface);
 	gold_source_rect = { 0, 0 ,500 ,500 };
 
-	//setWumpus();
-	//setPit();
-	//setGold();
-	//setWall();
+
+	setWall();
+	setWumpus();
+	setPit();
+	setGold();
 
 	// *****************확인용*************************
 	// Wumpus, Pit, Gold 위치 안겹치게 랜덤으로 놓기
@@ -61,10 +62,10 @@ Stage::Stage() {
 	//	(gold_location[0] == pit2_location[0] && gold_location[1] == pit2_location[1]));
 
 	//// Debug
-	cout << "wumpus : " << wumpus_location[1] + 1 << " " << 4 - wumpus_location[0] << endl;
+	/*cout << "wumpus : " << wumpus_location[1] + 1 << " " << 4 - wumpus_location[0] << endl;
 	cout << "pit1 : " << pit1_location[1] + 1 << " " << 4 - pit1_location[0] << endl;
 	cout << "pit2 : " << pit2_location[1] + 1 << " " << 4 - pit2_location[0] << endl;
-	cout << "gold : " << gold_location[1] + 1 << " " << 4 - gold_location[0] << endl << endl;
+	cout << "gold : " << gold_location[1] + 1 << " " << 4 - gold_location[0] << endl << endl;*/
 }
 
 Stage::~Stage() {
@@ -256,6 +257,7 @@ void Stage::process() {
 	isGlitter = grid[x][y][glitter];
 	bump = grid[x][y][wall];
 	action = agent->reasoning(isStench, isBreeze, isGlitter, bump);
+	agent->printState();
 
 	if (action == 1) {
 		//화살이 날아가서 환경에 변화가 있는지
@@ -302,7 +304,7 @@ void Stage::process() {
 	}
 	if (action == 2) {
 		// 금을 주운 후
-		grid[4][4][glitter] = false;
+		grid[x][y][glitter] = false;
 	}
 	if (action == 3) {
 		//금이 있으면 성공 없으면 실패

@@ -64,14 +64,7 @@ int main(int argc, char* argv[])
 			continue;
 		stage->HandleEvents();
 		stage->Update();
-		stage->Render();
-		/*if (g_current_game_phase < 4) {
-		}
-		else {
-			stage_phases[g_current_game_phase - 4]->HandleEvents();
-			stage_phases[g_current_game_phase - 4]->Update();
-			stage_phases[g_current_game_phase - 4]->Render();
-		}*/
+		//stage->Render();
 		g_last_time_ms = cur_time_ms;
 	}
 
