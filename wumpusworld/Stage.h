@@ -1,9 +1,9 @@
 #pragma once
 #ifndef __STAGE_H
 #define __STAGE_H
+#include <windows.h>
 #include "Game.h"
 #include "Grid.h"
-#include <windows.h>
 
 
 enum AgentLocation
