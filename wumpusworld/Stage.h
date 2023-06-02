@@ -16,6 +16,13 @@ protected:
 	SDL_Rect bossTimerSrcRect={0,0,1,1};
 	SDL_Color white = { 255,255,255,0 };
 
+	// Grid
+	SDL_Rect grid_rect[4][4];
+
+	// Image
+	SDL_Texture* wumpus_texture;
+	SDL_Rect wumpus_source_rect;
+	SDL_Rect wumpus_destination_rect;
 
 public:
 	int grid[6][6][7];//x,y,state

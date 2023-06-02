@@ -1,11 +1,18 @@
 #include "Stage.h"
 Stage::Stage() {
-	
+	// Wumpus 이미지 로드
+	SDL_Surface* wumpus_surface = IMG_Load("Resources/wumpus.png");					// 이미지 로드
+	cout << wumpus_surface;
+	wumpus_texture = SDL_CreateTextureFromSurface(g_renderer, wumpus_surface);		// 로드한 이미지를 텍스쳐로 만들기
+	SDL_FreeSurface(wumpus_surface);												// 로드한 이미지는 이제 사용 안하므로 삭제
+	wumpus_source_rect = { 0, 0 ,512 ,512 };										// 이미지에서 가져올 부분
+	wumpus_destination_rect = { 200, 200, 100, 100 };								// 게임 내에서 크기 설정
 }
 Stage::~Stage() {
 	resetStage();
 	SDL_DestroyTexture(enemyTexture);
-};
+	SDL_DestroyTexture(wumpus_texture);	// 텍스쳐 파괴
+}
 void Stage::HandleEvents()
 {
 	
@@ -43,7 +50,33 @@ void Stage::HandleEvents()
 void Stage::Update() {
 }
 void Stage::Render() {
+	// 화면 초기화
+	SDL_SetRenderDrawColor(g_renderer, 255, 255, 255, 255);
 	SDL_RenderClear(g_renderer);
+
+
+	// 4x4 Grid 출력
+	/*
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			// 사각형 위치 지정
+			grid_rect[i][j] = { (j + 1) * 125 + 50, i * 125 + 50, 100, 100 };
+
+			// 사각형 랜더
+			SDL_SetRenderDrawColor(g_renderer, 100, 100, 100, 255);
+			SDL_RenderFillRect(g_renderer, &grid_rect[i][j]);
+		}
+	}
+	*/
+
+	// Wumpus 이미지 출력
+	SDL_RenderCopy(g_renderer, wumpus_texture, &wumpus_source_rect, &wumpus_destination_rect);
+
+	SDL_RenderPresent(g_renderer);
+	
+
+
+
 	//SDL_RenderCopy(g_renderer, bgTexture, &bgSrcRect, &bgRect);
 	//back_cloudlist->render(); //back cloiud
 	/*if (boss != NULL) {
