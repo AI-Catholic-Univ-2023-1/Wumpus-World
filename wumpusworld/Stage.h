@@ -36,15 +36,14 @@ protected:
 	SDL_Rect pit_source_rect;
 	SDL_Rect gold_source_rect;
 
-	// Agent image
-	int agent_location[2] = { 3,0 };
-	int agent_rotation = 0;
-
-	// Wumpus, PIt, Gold Location
-	int wumpus_location[2] = { 0,0 };
-	int pit1_location[2] = { 0,0 };
-	int pit2_location[2] = { 0,0 };
-	int gold_location[2] = { 0,0 };
+	// Font
+	SDL_Texture* msg_texture;
+	SDL_Rect msg_box_rect = { 250, 600, 490, 80 };
+	SDL_Rect msg_source_rect;
+	SDL_Rect msg_destination_rect;
+	TTF_Font* font;
+	SDL_Color black = { 0,0,0,0 };
+	const char* message;
 
 public:
 	int grid[6][6][8];//x,y,state

@@ -36,41 +36,14 @@ Stage::Stage() {
 	setPit();
 	setGold();
 
-	// *****************확인용*************************
-	// Wumpus, Pit, Gold 위치 안겹치게 랜덤으로 놓기
-	//srand((unsigned int)time(NULL));
-
-	//do {
-	//	wumpus_location[0] = rand() % 4;
-	//	wumpus_location[1] = rand() % 4;
-	//} while (wumpus_location[0] == agent_location[0] && wumpus_location[1] == agent_location[1]);
-
-	//do {
-	//	pit1_location[0] = rand() % 4;
-	//	pit1_location[1] = rand() % 4;
-	//} while ((pit1_location[0] == agent_location[0] && pit1_location[1] == agent_location[1]) ||
-	//	(pit1_location[0] == wumpus_location[0] && pit1_location[1] == wumpus_location[1]));
-
-	//do {
-	//	pit2_location[0] = rand() % 4;
-	//	pit2_location[1] = rand() % 4;
-	//} while ((pit2_location[0] == agent_location[0] && pit2_location[1] == agent_location[1]) ||
-	//	(pit2_location[0] == wumpus_location[0] && pit2_location[1] == wumpus_location[1]) ||
-	//	(pit2_location[0] == pit1_location[0] && pit2_location[1] == pit1_location[1]));
-
-	//do {
-	//	gold_location[0] = rand() % 4;
-	//	gold_location[1] = rand() % 4;
-	//} while ((gold_location[0] == agent_location[0] && gold_location[1] == agent_location[1]) ||
-	//	(gold_location[0] == wumpus_location[0] && gold_location[1] == wumpus_location[1]) ||
-	//	(gold_location[0] == pit1_location[0] && gold_location[1] == pit1_location[1]) ||
-	//	(gold_location[0] == pit2_location[0] && gold_location[1] == pit2_location[1]));
-
-	//// Debug
-	/*cout << "wumpus : " << wumpus_location[1] + 1 << " " << 4 - wumpus_location[0] << endl;
-	cout << "pit1 : " << pit1_location[1] + 1 << " " << 4 - pit1_location[0] << endl;
-	cout << "pit2 : " << pit2_location[1] + 1 << " " << 4 - pit2_location[0] << endl;
-	cout << "gold : " << gold_location[1] + 1 << " " << 4 - gold_location[0] << endl << endl;*/
+	// Font
+	font = TTF_OpenFont("Resources/NanumSquareNeo-dEb.ttf", 60);				// 폰트 크기 설정 및 로드
+	message = "Any Message";
+	SDL_Surface* msg_surface = TTF_RenderText_Blended(font, message, black);	// 문구 삽입 (한글X)
+	msg_texture = SDL_CreateTextureFromSurface(g_renderer, msg_surface);
+	msg_source_rect = { 0, 0, msg_surface->w, msg_surface->h };
+	msg_destination_rect = { 280, 605, msg_source_rect.w, msg_source_rect.h };
+	SDL_FreeSurface(msg_surface);
 }
 
 Stage::~Stage() {
@@ -80,6 +53,8 @@ Stage::~Stage() {
 	SDL_DestroyTexture(wumpus_texture);
 	SDL_DestroyTexture(pit_texture);
 	SDL_DestroyTexture(gold_texture);
+	SDL_DestroyTexture(msg_texture);
+	TTF_CloseFont(font);
 }
 
 void Stage::HandleEvents()
@@ -146,7 +121,7 @@ void Stage::Render() {
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			// 사각형 위치 지정
-			grid_rect[i][j] = { (j + 1) * 125 + 50, i * 125 + 50, 100, 100 };
+			grid_rect[i][j] = { (j + 1) * 125 + 130, i * 125 + 50, 100, 100 };
 
 			// 바깥 사각형
 			SDL_SetRenderDrawColor(g_renderer, 200, 200, 200, 255);
@@ -166,19 +141,20 @@ void Stage::Render() {
 				SDL_RenderCopyEx(g_renderer, agent_texture, &agent_source_rect, &grid_rect[i][j], agent->direction * 90, NULL, SDL_FLIP_NONE);
 			}
 
-			// Agent, Wumpus, Pit, Gold 위치 설정
-			/*if (i == agent_location[VERTICAL] && j == agent_location[HORIZONTAL]) {
-				SDL_RenderCopyEx(g_renderer, agent_texture, &agent_source_rect, &grid_rect[i][j], agent_rotation * 90, NULL, SDL_FLIP_NONE);
+			// 방문하지 않은 타일은 다른 사각형으로 덮음
+			// 방문했거나 에이전트가 있는 타일은 사각형으로 덮지 않음
+			if (agent->visited[i + 1][j + 1] == false && !(i + 1 == agent->posRow && j + 1 == agent->posCol)) {
+				SDL_SetRenderDrawColor(g_renderer, 80, 80, 80, 255);
+				SDL_RenderFillRect(g_renderer, &grid_rect[i][j]);
 			}
-			else if (i == gold_location[0] && j == gold_location[1])
-				SDL_RenderCopy(g_renderer, gold_texture, &gold_source_rect, &grid_rect[i][j]);
-			else if (i == wumpus_location[0] && j == wumpus_location[1])
-				SDL_RenderCopy(g_renderer, wumpus_texture, &wumpus_source_rect, &grid_rect[i][j]);
-			else if ((i == pit1_location[0] && j == pit1_location[1])||(i == pit2_location[0] && j == pit2_location[1]))
-				SDL_RenderCopy(g_renderer, pit_texture, &pit_source_rect, &grid_rect[i][j]);*/
 		}
 	}
 
+	// 메시지 출력
+	SDL_SetRenderDrawColor(g_renderer, 200, 200, 200, 255);
+	SDL_RenderFillRect(g_renderer, &msg_box_rect);
+
+	SDL_RenderCopy(g_renderer, msg_texture, &msg_source_rect, &msg_destination_rect);
 
 	SDL_RenderPresent(g_renderer);
 }
