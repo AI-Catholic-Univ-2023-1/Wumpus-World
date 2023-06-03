@@ -2,7 +2,7 @@
 #include<stdlib.h>
 Stage::Stage() {
 	// Agent 이미지 로드
-	SDL_Surface* agent_surface = IMG_Load("Resources/agent.png");				// 이미지 로드
+	SDL_Surface* agent_surface = IMG_Load("Resources/agent.png");					// 이미지 로드
 	agent_texture = SDL_CreateTextureFromSurface(g_renderer, agent_surface);		// 로드한 이미지를 텍스쳐로 만들기
 	SDL_FreeSurface(agent_surface);													// 로드한 이미지는 이제 사용 안하므로 삭제
 	agent_source_rect = { 0, 0 ,400 ,400 };											// 이미지에서 가져올 부분
@@ -25,6 +25,18 @@ Stage::Stage() {
 	SDL_FreeSurface(gold_surface);
 	gold_source_rect = { 0, 0 ,500 ,500 };
 
+	// Stench 이미지 로드
+	SDL_Surface* stench_surface = IMG_Load("Resources/stench.png");
+	stench_texture = SDL_CreateTextureFromSurface(g_renderer, stench_surface);
+	SDL_FreeSurface(stench_surface);
+	stench_source_rect = { 0, 0 ,612 ,612 };
+
+	// Breeze 이미지 로드
+	SDL_Surface* breeze_surface = IMG_Load("Resources/breeze.png");
+	breeze_texture = SDL_CreateTextureFromSurface(g_renderer, breeze_surface);
+	SDL_FreeSurface(breeze_surface);
+	breeze_source_rect = { 0, 0 ,640 ,640 };
+
 	for (int i = 0; i < 6; i++) {
 		for (int j = 0; j < 6; j++) {
 			fill_n(grid[i][j], 8, 0);
@@ -42,7 +54,7 @@ Stage::Stage() {
 	SDL_Surface* msg_surface = TTF_RenderText_Blended(font, message, black);	// 문구 삽입 (한글X)
 	msg_texture = SDL_CreateTextureFromSurface(g_renderer, msg_surface);
 	msg_source_rect = { 0, 0, msg_surface->w, msg_surface->h };
-	msg_destination_rect = { 280, 605, msg_source_rect.w, msg_source_rect.h };
+	msg_destination_rect = { 280, 650, msg_source_rect.w, msg_source_rect.h };
 	SDL_FreeSurface(msg_surface);
 }
 
@@ -53,6 +65,8 @@ Stage::~Stage() {
 	SDL_DestroyTexture(wumpus_texture);
 	SDL_DestroyTexture(pit_texture);
 	SDL_DestroyTexture(gold_texture);
+	SDL_DestroyTexture(stench_texture);
+	SDL_DestroyTexture(breeze_texture);
 	SDL_DestroyTexture(msg_texture);
 	TTF_CloseFont(font);
 }
@@ -117,38 +131,45 @@ void Stage::Render() {
 	SDL_RenderClear(g_renderer);
 
 
-	// 4x4 Grid
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
+	// 6x6 Grid
+	// 확인하기 어려워서 일단은 4x4
+	for (int i = 0; i < 6; i++) {
+		for (int j = 0; j < 6; j++) {
 			// 사각형 위치 지정
-			grid_rect[i][j] = { (j + 1) * 125 + 130, i * 125 + 50, 100, 100 };
+			grid_rect[i][j] = { (j + 1) * 100 + 100, i * 100 + 30, 70, 70 };
 
 			// 바깥 사각형
 			SDL_SetRenderDrawColor(g_renderer, 200, 200, 200, 255);
 			SDL_RenderFillRect(g_renderer, &grid_rect[i][j]);
+
+			// 방문하지 않은 타일은 진한회색 타일
+			/*if (agent->grid[i+1][j+1][unknown] == false && !(i + 1 == agent->posRow && j + 1 == agent->posCol)) {
+				SDL_SetRenderDrawColor(g_renderer, 80, 80, 80, 255);
+				SDL_RenderFillRect(g_renderer, &grid_rect[i][j]);
+			}*/
 			 
-			if (grid[i + 1][j + 1][wumpus]==1) {
+			if (agent->grid[i][j][wumpus] == 1) {
 				SDL_RenderCopy(g_renderer, wumpus_texture, &wumpus_source_rect, &grid_rect[i][j]);
 			}
-			if (grid[i + 1][j + 1][pit] == 1) {
+			if (agent->grid[i][j][pit] == 1) {
 				SDL_RenderCopy(g_renderer, pit_texture, &pit_source_rect, &grid_rect[i][j]);
 			}
-			if (grid[i + 1][j + 1][glitter] == 1) {
+			if (agent->grid[i][j][glitter] == 1) {
 				SDL_RenderCopy(g_renderer, gold_texture, &gold_source_rect, &grid_rect[i][j]);
 			}
 
-			if (i+1 == agent->posRow && j+1 == agent->posCol) {
+			if (i == agent->posRow && j == agent->posCol) {
 				SDL_RenderCopyEx(g_renderer, agent_texture, &agent_source_rect, &grid_rect[i][j], agent->direction * 90, NULL, SDL_FLIP_NONE);
-			}
-
-			// 방문하지 않은 타일은 다른 사각형으로 덮음
-			// 방문했거나 에이전트가 있는 타일은 사각형으로 덮지 않음
-			if (agent->visited[i + 1][j + 1] == false && !(i + 1 == agent->posRow && j + 1 == agent->posCol)) {
-				SDL_SetRenderDrawColor(g_renderer, 80, 80, 80, 255);
-				SDL_RenderFillRect(g_renderer, &grid_rect[i][j]);
 			}
 		}
 	}
+
+	// *********임시*********
+	// Stench, Breeze 출력
+	SDL_Rect tmp_rect1 = { 900,0,70,70 };
+	SDL_Rect tmp_rect2 = { 900,100,70,70 };
+	SDL_RenderCopy(g_renderer, stench_texture, &stench_source_rect, &tmp_rect1);
+	SDL_RenderCopy(g_renderer, breeze_texture, &breeze_source_rect, &tmp_rect2);
 
 	// 메시지 출력
 	SDL_SetRenderDrawColor(g_renderer, 200, 200, 200, 255);
