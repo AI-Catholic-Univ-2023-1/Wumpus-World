@@ -179,8 +179,7 @@ void Stage::Render() {
 	SDL_Rect tmp_rect1 = { 900,0,70,70 };
 	SDL_Rect tmp_rect2 = { 900,100,70,70 };
 	SDL_RenderCopy(g_renderer, stench_texture, &stench_source_rect, &tmp_rect1);
-	//SDL_RenderCopy(g_renderer, breeze_texture, &breeze_source_rect, &tmp_rect2);
-	SDL_RenderCopy(g_renderer, wall_texture, &wall_source_rect, &tmp_rect2);
+	SDL_RenderCopy(g_renderer, breeze_texture, &breeze_source_rect, &tmp_rect2);
 
 	// 메시지 출력
 	SDL_SetRenderDrawColor(g_renderer, 200, 200, 200, 255);
