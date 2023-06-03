@@ -33,12 +33,14 @@ protected:
 	SDL_Texture* gold_texture;
 	SDL_Texture* stench_texture;
 	SDL_Texture* breeze_texture;
+	SDL_Texture* wall_texture;
 	SDL_Rect agent_source_rect;
 	SDL_Rect wumpus_source_rect;
 	SDL_Rect pit_source_rect;
 	SDL_Rect gold_source_rect;
 	SDL_Rect stench_source_rect;
 	SDL_Rect breeze_source_rect;
+	SDL_Rect wall_source_rect;
 
 	// Font
 	SDL_Texture* msg_texture;

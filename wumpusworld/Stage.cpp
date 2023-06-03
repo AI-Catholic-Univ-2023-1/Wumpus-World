@@ -37,6 +37,12 @@ Stage::Stage() {
 	SDL_FreeSurface(breeze_surface);
 	breeze_source_rect = { 0, 0 ,640 ,640 };
 
+	// Wall 이미지 로드
+	SDL_Surface* wall_surface = IMG_Load("Resources/wall.png");
+	wall_texture = SDL_CreateTextureFromSurface(g_renderer, wall_surface);
+	SDL_FreeSurface(wall_surface);
+	wall_source_rect = { 0, 0 ,920 ,920 };
+
 	for (int i = 0; i < 6; i++) {
 		for (int j = 0; j < 6; j++) {
 			fill_n(grid[i][j], 8, 0);
@@ -67,6 +73,7 @@ Stage::~Stage() {
 	SDL_DestroyTexture(gold_texture);
 	SDL_DestroyTexture(stench_texture);
 	SDL_DestroyTexture(breeze_texture);
+	SDL_DestroyTexture(wall_texture);
 	SDL_DestroyTexture(msg_texture);
 	TTF_CloseFont(font);
 }
@@ -157,6 +164,9 @@ void Stage::Render() {
 			if (agent->grid[i][j][glitter] == 1) {
 				SDL_RenderCopy(g_renderer, gold_texture, &gold_source_rect, &grid_rect[i][j]);
 			}
+			if (agent->grid[i][j][wall] == 1) {
+				SDL_RenderCopy(g_renderer, wall_texture, &wall_source_rect, &grid_rect[i][j]);
+			}
 
 			if (i == agent->posRow && j == agent->posCol) {
 				SDL_RenderCopyEx(g_renderer, agent_texture, &agent_source_rect, &grid_rect[i][j], agent->direction * 90, NULL, SDL_FLIP_NONE);
@@ -169,7 +179,8 @@ void Stage::Render() {
 	SDL_Rect tmp_rect1 = { 900,0,70,70 };
 	SDL_Rect tmp_rect2 = { 900,100,70,70 };
 	SDL_RenderCopy(g_renderer, stench_texture, &stench_source_rect, &tmp_rect1);
-	SDL_RenderCopy(g_renderer, breeze_texture, &breeze_source_rect, &tmp_rect2);
+	//SDL_RenderCopy(g_renderer, breeze_texture, &breeze_source_rect, &tmp_rect2);
+	SDL_RenderCopy(g_renderer, wall_texture, &wall_source_rect, &tmp_rect2);
 
 	// 메시지 출력
 	SDL_SetRenderDrawColor(g_renderer, 200, 200, 200, 255);
