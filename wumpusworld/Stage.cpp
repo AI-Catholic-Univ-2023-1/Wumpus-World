@@ -258,7 +258,7 @@ void Stage::process() {
 		agent->setGrid(x, y, wumpus, true);
 		return;
 	}
-	else if (grid[x][y][breeze] == 1) {
+	else if (grid[x][y][pit] == 1) {
 		agent->die();
 		agent->setGrid(x, y, pit, true);
 		return;
