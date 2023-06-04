@@ -87,35 +87,15 @@ Stage::Stage() {
 	// Font
 	font = TTF_OpenFont("Resources/NanumSquareNeo-dEb.ttf", 40);				// 폰트 크기 설정 및 로드
 	message = "Wumpus World";
-	SDL_Surface* msg_surface = TTF_RenderText_Blended(font, message, black);	// 문구 삽입 (한글X)
-	msg_texture = SDL_CreateTextureFromSurface(g_renderer, msg_surface);
-	msg_source_rect = { 0, 0, msg_surface->w, msg_surface->h };
-	msg_destination_rect = { 40, 670, msg_source_rect.w, msg_source_rect.h };
-	SDL_FreeSurface(msg_surface);
 
 	// Arrow Message
 	arrowMsg = "X 2";
-	SDL_Surface* arrowMsg_surface = TTF_RenderText_Blended(font, arrowMsg, black);
-	arrowMsg_texture = SDL_CreateTextureFromSurface(g_renderer, arrowMsg_surface);
-	arrowMsg_source_rect = { 0, 0, arrowMsg_surface->w, arrowMsg_surface->h };
-	arrowMsg_destination_rect = { 840, 240, arrowMsg_source_rect.w, arrowMsg_source_rect.h };
-	SDL_FreeSurface(arrowMsg_surface);
 
 	// Died Message
 	diedMsg = ": 99";
-	SDL_Surface* diedMsg_surface = TTF_RenderText_Blended(font, diedMsg, black);
-	diedMsg_texture = SDL_CreateTextureFromSurface(g_renderer, diedMsg_surface);
-	diedMsg_source_rect = { 0, 0, diedMsg_surface->w, diedMsg_surface->h };
-	diedMsg_destination_rect = { 850, 45, diedMsg_source_rect.w, diedMsg_source_rect.h };
-	SDL_FreeSurface(diedMsg_surface);
 
 	// Action Message
 	actionMsg = ": 99";
-	SDL_Surface* actionMsg_surface = TTF_RenderText_Blended(font, actionMsg, black);
-	actionMsg_texture = SDL_CreateTextureFromSurface(g_renderer, actionMsg_surface);
-	actionMsg_source_rect = { 0, 0, actionMsg_surface->w, actionMsg_surface->h };
-	actionMsg_destination_rect = { 850, 145, actionMsg_source_rect.w, actionMsg_source_rect.h };
-	SDL_FreeSurface(actionMsg_surface);
 }
 
 Stage::~Stage() {
@@ -164,7 +144,6 @@ void Stage::Render() {
 	SDL_SetRenderDrawColor(g_renderer, 255, 255, 255, 255);
 	SDL_RenderClear(g_renderer);
 
-
 	// 6x6 Grid
 	for (int i = 0; i < 6; i++) {
 		for (int j = 0; j < 6; j++) {
@@ -209,7 +188,6 @@ void Stage::Render() {
 		}
 	}
 
-
 	// Action 메세지 출력
 	SDL_SetRenderDrawColor(g_renderer, 200, 200, 200, 255);
 	SDL_RenderFillRect(g_renderer, &msg_box_rect);
@@ -219,9 +197,10 @@ void Stage::Render() {
 		msg_source_rect = { 0, 0, msg_surface->w, msg_surface->h };
 		msg_destination_rect = { 140, 670, msg_source_rect.w, msg_source_rect.h };
 		SDL_FreeSurface(msg_surface);
+		SDL_RenderCopy(g_renderer, msg_texture, &msg_source_rect, &msg_destination_rect);
+		SDL_DestroyTexture(msg_texture);
 	}
 
-	SDL_RenderCopy(g_renderer, msg_texture, &msg_source_rect, &msg_destination_rect);
 
 	// 우상단 박스
 	SDL_SetRenderDrawColor(g_renderer, 200, 200, 200, 255);
@@ -230,23 +209,44 @@ void Stage::Render() {
 	// Arrow 개수 출력
 	SDL_RenderCopy(g_renderer, arrow_texture, &arrow_source_rect, &arrow_destination_rect);
 	{
-		string temp = "X " + std::to_string(agent->arrows);
+		string temp = std::to_string(agent->arrows);
 		arrowMsg = temp.c_str();
 		SDL_Surface* arrowMsg_surface = TTF_RenderText_Blended(font, arrowMsg, black);
 		arrowMsg_texture = SDL_CreateTextureFromSurface(g_renderer, arrowMsg_surface);
 		arrowMsg_source_rect = { 0, 0, arrowMsg_surface->w, arrowMsg_surface->h };
-		arrowMsg_destination_rect = { 840, 240, arrowMsg_source_rect.w, arrowMsg_source_rect.h };
+		arrowMsg_destination_rect = { 850, 240, arrowMsg_source_rect.w, arrowMsg_source_rect.h };
 		SDL_FreeSurface(arrowMsg_surface);
+		SDL_RenderCopy(g_renderer, arrowMsg_texture, &arrowMsg_source_rect, &arrowMsg_destination_rect);
+		SDL_DestroyTexture(arrowMsg_texture);
 	}
-	SDL_RenderCopy(g_renderer, arrowMsg_texture, &arrowMsg_source_rect, &arrowMsg_destination_rect);
 
-	// Died 개수 출력
-	SDL_RenderCopy(g_renderer, died_texture, &died_source_rect, &died_destination_rect);
-	SDL_RenderCopy(g_renderer, diedMsg_texture, &diedMsg_source_rect, &diedMsg_destination_rect);
+	// Death Count 출력
+	{
+		string temp = std::to_string(agent->deathCount);
+		diedMsg = temp.c_str();
+		SDL_Surface* diedMsg_surface = TTF_RenderText_Blended(font, diedMsg, black);
+		diedMsg_texture = SDL_CreateTextureFromSurface(g_renderer, diedMsg_surface);
+		diedMsg_source_rect = { 0, 0, diedMsg_surface->w, diedMsg_surface->h };
+		diedMsg_destination_rect = { 850, 45, diedMsg_source_rect.w, diedMsg_source_rect.h };
+		SDL_FreeSurface(diedMsg_surface);
+		SDL_RenderCopy(g_renderer, died_texture, &died_source_rect, &died_destination_rect);
+		SDL_RenderCopy(g_renderer, diedMsg_texture, &diedMsg_source_rect, &diedMsg_destination_rect);
+		SDL_DestroyTexture(diedMsg_texture);
+	}
 
 	// Action 개수 출력
-	SDL_RenderCopy(g_renderer, action_texture, &action_source_rect, &action_destination_rect);
-	SDL_RenderCopy(g_renderer, actionMsg_texture, &actionMsg_source_rect, &actionMsg_destination_rect);
+	{
+		string temp = std::to_string(agent->costFunc);
+		actionMsg = temp.c_str();
+		SDL_Surface* actionMsg_surface = TTF_RenderText_Blended(font, actionMsg, black);
+		actionMsg_texture = SDL_CreateTextureFromSurface(g_renderer, actionMsg_surface);
+		actionMsg_source_rect = { 0, 0, actionMsg_surface->w, actionMsg_surface->h };
+		actionMsg_destination_rect = { 850, 145, actionMsg_source_rect.w, actionMsg_source_rect.h };
+		SDL_FreeSurface(actionMsg_surface);
+		SDL_RenderCopy(g_renderer, action_texture, &action_source_rect, &action_destination_rect);
+		SDL_RenderCopy(g_renderer, actionMsg_texture, &actionMsg_source_rect, &actionMsg_destination_rect);
+		SDL_DestroyTexture(actionMsg_texture);
+	}
 
 	SDL_RenderPresent(g_renderer);
 }
@@ -402,19 +402,15 @@ void Stage::process() {
 			message = "Bumped!";
 		}
 		else if (agent->action == sht) {
-			agent->setGrid(agent->frontPosRow, agent->frontPosCol, wumpus, false);
-			agent->setGrid(agent->frontPosRow, agent->frontPosCol, safe, true);
 			message = "Shot but not Screamed";
 			//화살이 날아가서 환경에 변화가 있는지
-			int r, c;
 			bool killed = false;
 			if (agent->direction == north) {
 				//agent->posRow++;
 				for (int arrow = agent->posRow; arrow >= 1; arrow--) {
 					if (grid[arrow][agent->posCol][wumpus] == true) {
 						grid[arrow][agent->posCol][wumpus] = false;
-						r = arrow;
-						c = y;
+						agent->setGrid(arrow, agent->posCol, wumpus, false);
 						killed = true;
 						message = "Shot and Wumpus Screamed";
 						//스크림 울려퍼지게
@@ -427,8 +423,7 @@ void Stage::process() {
 				for (int arrow = agent->posRow; arrow <= 4; arrow++) {
 					if (grid[arrow][agent->posCol][wumpus] == true) {
 						grid[arrow][agent->posCol][wumpus] = false;
-						r = arrow;
-						c = y;
+						agent->setGrid(arrow, agent->posCol, wumpus, false);
 						killed = true;
 						message = "Shot and Wumpus Screamed";
 						//스크림 울려퍼지게
@@ -441,8 +436,7 @@ void Stage::process() {
 				for (int arrow = agent->posCol; arrow <= 4; arrow++) {
 					if (grid[agent->posRow][arrow][wumpus] == true) {
 						grid[agent->posRow][arrow][wumpus] = false;
-						r = x;
-						c = arrow;
+						agent->setGrid(agent->posRow, arrow, wumpus, false);
 						killed = true;
 						message = "Shot and Wumpus Screamed";
 						//스크림 울려퍼지게
@@ -455,8 +449,7 @@ void Stage::process() {
 				for (int arrow = agent->posCol; arrow >= 1; arrow--) {
 					if (grid[agent->posRow][arrow][wumpus] == true) {
 						grid[agent->posRow][arrow][wumpus] = false;
-						r = x;
-						c = arrow;
+						agent->setGrid(agent->posRow, arrow, wumpus, false);
 						killed = true;
 						message = "Shot and Wumpus Screamed";
 						//스크림 울려퍼지게

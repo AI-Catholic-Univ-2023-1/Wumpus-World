@@ -29,8 +29,11 @@ public:
 	bool shot = false;
 	bool percept = false;
 	int action = -1;
+	int deathCount = 0;
+	int costFunc = 0;
 
 	Agent();
+	void checkSafe();
 	void printState();
 	void setGrid(int x, int y, int state, bool t);
 	bool isGrid(int x, int y, int state);

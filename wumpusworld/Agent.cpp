@@ -132,6 +132,7 @@ void Agent::goForward() {
 		havingGold = true;
 	}
 	void Agent::die() {
+		deathCount++;
 		//위치 1,1로 옮기기
 		posRow = 4;
 		posCol = 1;
@@ -196,21 +197,27 @@ void Agent::goForward() {
 	}
 	void Agent::doAction() {
 		if (action == go) {
+			costFunc++;
 			goForward();
 		}
 		else if (action == turnL) {
+			costFunc++;
 			turnLeft();
 		}
 		else if (action == turnR) {
+			costFunc++;
 			turnRight();
 		}
 		else if (action == grb) {
+			costFunc++;
 			grab();
 		}
 		else if (action == sht) {
+			costFunc++;
 			shoot();
 		}
 		else if (action == clmb) {
+			costFunc++;
 			climb();
 		}
 		else if (action == bmp) {
@@ -219,6 +226,9 @@ void Agent::goForward() {
 		else if (action == dead) {
 			die();
 		}
+	}
+	void Agent::checkSafe() {
+
 	}
 	void Agent::reasoning(bool stench, bool breeze, bool isGlitter, bool bump, bool death) {
 		if (stk.empty() && havingGold) {
@@ -253,7 +263,11 @@ void Agent::goForward() {
 					action = turnL;
 					return;
 				}
-				action = turnR;
+				else if (rightPosRow == stk.top().first && rightPosCol == stk.top().second) {
+					action = turnR;
+					return;
+				}
+				action = turnL;
 				return;
 			}
 			action = go;
@@ -268,28 +282,28 @@ void Agent::goForward() {
 
 
 		// 방문하지 않고 벽이 아닌 안전한 타일로 이동
-		if (visited[frontPosRow][frontPosCol] == false && isGrid(frontPosRow, frontPosCol, safe) == true && isGrid(frontPosRow, frontPosCol, wall) == false) {
+		if (visited[frontPosRow][frontPosCol] == false && isGrid(frontPosRow, frontPosCol, safe) == true && isGrid(frontPosRow, frontPosCol, wall) == false && isGrid(frontPosRow, frontPosCol, blocked) == false) {
 			action = go;
 			return;
 		}
-		else if (visited[rightPosRow][rightPosCol] == false && isGrid(rightPosRow, rightPosCol, safe) == true && isGrid(rightPosRow, rightPosCol, wall) == false) {
-			action = turnR;
-			return;
-		}
-		else if (visited[leftPosRow][leftPosCol] == false && isGrid(leftPosRow, leftPosCol, safe) == true && isGrid(leftPosRow, leftPosCol, wall) == false) {
+		else if (visited[leftPosRow][leftPosCol] == false && isGrid(leftPosRow, leftPosCol, safe) == true && isGrid(leftPosRow, leftPosCol, wall) == false && isGrid(leftPosRow, leftPosCol, blocked) == false) {
 			action = turnL;
 			return;
 		}
-		else if (visited[backPosRow][backPosCol] == false && isGrid(backPosRow, backPosCol, safe) == true && isGrid(backPosRow, backPosCol, wall) == false) {
+		else if (visited[rightPosRow][rightPosCol] == false && isGrid(rightPosRow, rightPosCol, safe) == true && isGrid(rightPosRow, rightPosCol, wall) == false && isGrid(rightPosRow, rightPosCol, blocked) == false) {
+			action = turnR;
+			return;
+		}
+		else if (visited[backPosRow][backPosCol] == false && isGrid(backPosRow, backPosCol, safe) == true && isGrid(backPosRow, backPosCol, wall) == false && isGrid(backPosRow, backPosCol, blocked) == false) {
 			action = turnR;
 			return;
 		}
 
 		if (
-			(isGrid(frontPosRow, frontPosCol, wall) == true || isGrid(frontPosRow, frontPosCol, pit) == true) &&
-			(isGrid(backPosRow, backPosCol, wall) == true || isGrid(backPosRow, backPosCol, pit) == true) &&
-			(isGrid(leftPosRow, leftPosCol, wall) == true || isGrid(leftPosRow, leftPosCol, pit) == true) &&
-			(isGrid(rightPosRow, rightPosCol, wall) == true || isGrid(rightPosRow, rightPosCol, pit) == true)
+			(isGrid(frontPosRow, frontPosCol, wall) == true || isGrid(frontPosRow, frontPosCol, pit) == true || isGrid(frontPosRow, frontPosCol, blocked) == true) &&
+			(isGrid(backPosRow, backPosCol, wall) == true || isGrid(backPosRow, backPosCol, pit) == true || isGrid(backPosRow, backPosCol, blocked) == true) &&
+			(isGrid(leftPosRow, leftPosCol, wall) == true || isGrid(leftPosRow, leftPosCol, pit) == true || isGrid(leftPosRow, leftPosCol, blocked) == true) &&
+			(isGrid(rightPosRow, rightPosCol, wall) == true || isGrid(rightPosRow, rightPosCol, pit) == true || isGrid(rightPosRow, rightPosCol, blocked) == true)
 			) {
 			//사방이 갈 수 없는 경우
 			action = clmb;
@@ -310,7 +324,11 @@ void Agent::goForward() {
 						action = turnL;
 						return;
 					}
-					action = turnR;
+					else if (rightPosRow == stk.top().first && rightPosCol == stk.top().second) {
+						action = turnR;
+						return;
+					}
+					action = turnL;
 					return;
 				}
 				else {
@@ -321,14 +339,9 @@ void Agent::goForward() {
 				}
 			}
 			else {
-				action = turnR;
+				action = turnL;
 				return;
 			}
-		}
-		if (isGrid(frontPosRow, frontPosCol, wall) == true || isGrid(frontPosRow, frontPosCol, blocked) == true || isGrid(frontPosRow, frontPosCol, pit) == true) {
-			//앞이 벽, x, 구덩이인 경우
-			action = turnR;
-			return;
 		}
 		if (stench == true) {//냄새가 나는데 3방향 타일의 정보가 있고,  남은 타일에 대한 정보가 없으면 그 타일은 괴물
 			if (
@@ -414,9 +427,27 @@ void Agent::goForward() {
 				return;
 			}
 		}
+		//괴물이 있는 쪽으로 돌리기
+		if (isGrid(leftPosRow, leftPosCol, wumpus) == true && isGrid(frontPosRow,frontPosCol,wumpus)==false) {
+			action = turnL;
+			return;
+		}
+		if (isGrid(rightPosRow, rightPosCol, wumpus) == true && isGrid(frontPosRow, frontPosCol, wumpus) == false) {
+			action = turnR;
+			return; 
+		}
+		if (isGrid(backPosRow, backPosCol, wumpus) == true && isGrid(frontPosRow, frontPosCol, wumpus) == false) {
+			action = turnR;
+			return;
+		}
+		if (isGrid(frontPosRow, frontPosCol, wall) == true || isGrid(frontPosRow, frontPosCol, blocked) == true || isGrid(frontPosRow, frontPosCol, pit) == true) {
+			//앞이 벽, x, 구덩이인 경우
+			action = turnL;
+			return;
+		}
 		if (stench == true || isGrid(frontPosRow, frontPosCol, wumpus) == true) {
 			//7.냄새나거나 앞에 괴물
-			if (arrows > 0) {
+			if (arrows > 0 && shot==false) {
 				action = sht;
 				return;
 			}
@@ -424,25 +455,10 @@ void Agent::goForward() {
 				action = go;
 				return;
 			}
-			//if (shot == true) {
-			//	//이미 쐈으면
-			//	action = go;
-			//	return;
-			//}
-			//else {
-			//	if (arrows > 0) {
-			//		action = sht;
-			//		return;
-			//	}
-			//	else {
-			//		action = go;
-			//		return;
-			//	}
-			//}
 		}
 		if (isGrid(frontPosRow, frontPosCol, pit) == true) {
 			//앞타일에 구덩이
-			action = turnR;
+			action = turnL;
 			return;
 		}
 		if (breeze == true) {
