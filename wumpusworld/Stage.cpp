@@ -160,6 +160,14 @@ void Stage::HandleEvents()
 			else if (event.key.keysym.sym == SDLK_4) {
 				speed = 50;
 			}
+			else if (event.key.keysym.sym == SDLK_ESCAPE) {
+				if (pause == false) {
+					pause = true;
+				}
+				else {
+					pause = false;
+				}
+			}
 			break;
 		default:
 			break;
