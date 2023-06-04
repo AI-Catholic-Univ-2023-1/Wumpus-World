@@ -56,7 +56,7 @@ Stage::Stage() {
 
 	// Font
 	font = TTF_OpenFont("Resources/NanumSquareNeo-dEb.ttf", 60);				// 폰트 크기 설정 및 로드
-	message = "Any Message";
+	message = "Wumpus World";
 	SDL_Surface* msg_surface = TTF_RenderText_Blended(font, message, black);	// 문구 삽입 (한글X)
 	msg_texture = SDL_CreateTextureFromSurface(g_renderer, msg_surface);
 	msg_source_rect = { 0, 0, msg_surface->w, msg_surface->h };
@@ -91,41 +91,6 @@ void Stage::HandleEvents()
 			break;
 		}
 	}
-
-	//	case SDL_KEYDOWN:
-	//		// Agent Roatation
-	//		if (event.key.keysym.sym == SDLK_SPACE) {
-	//			agent_rotation++;
-	//		}
-	//		// Agent Key Move
-	//		else if (event.key.keysym.sym == SDLK_UP) {
-	//			if (agent_location[VERTICAL] > 0 && agent_location[VERTICAL] <= 3)
-	//				agent_location[VERTICAL]--;
-	//		}
-	//		else if (event.key.keysym.sym == SDLK_DOWN) {
-	//			if (agent_location[VERTICAL] >= 0 && agent_location[VERTICAL] < 3)
-	//				agent_location[VERTICAL]++;
-	//		}
-	//		else if (event.key.keysym.sym == SDLK_RIGHT) {
-	//			if (agent_location[HORIZONTAL] >= 0 && agent_location[HORIZONTAL] < 3)
-	//				agent_location[HORIZONTAL]++;
-	//		}
-	//		else if (event.key.keysym.sym == SDLK_LEFT) {
-	//			if (agent_location[HORIZONTAL] > 0 && agent_location[HORIZONTAL] <= 3)
-	//				agent_location[HORIZONTAL]--;
-	//		}
-
-	//		break;
-	//	case SDL_KEYUP:
-	//		if (event.key.keysym.sym == SDLK_SPACE) {
-	//		}
-	//		break;
-		//case SDL_MOUSEBUTTONDOWN:
-		//	if (event.button.button == SDL_BUTTON_LEFT)
-		//	{
-		//	}
-		//	break;
-
 }
 
 void Stage::Update() {
@@ -150,13 +115,19 @@ void Stage::Render() {
 			SDL_RenderFillRect(g_renderer, &grid_rect[i][j]);
 
 			// 방문하지 않은 타일은 진한회색 타일
-			/*if (agent->grid[i+1][j+1][unknown] == false && !(i + 1 == agent->posRow && j + 1 == agent->posCol)) {
+			if (agent->visited[i][j] == false && (i!=agent->posRow || j!=agent->posCol)) {
 				SDL_SetRenderDrawColor(g_renderer, 80, 80, 80, 255);
 				SDL_RenderFillRect(g_renderer, &grid_rect[i][j]);
-			}*/
+			}
 			 
 			if (agent->grid[i][j][wumpus] == 1) {
 				SDL_RenderCopy(g_renderer, wumpus_texture, &wumpus_source_rect, &grid_rect[i][j]);
+			}
+			if (agent->grid[i][j][stench] == 1) {
+				SDL_RenderCopy(g_renderer, stench_texture, &stench_source_rect, &grid_rect[i][j]);
+			}
+			if (agent->grid[i][j][breeze] == 1) {
+				SDL_RenderCopy(g_renderer, breeze_texture, &breeze_source_rect, &grid_rect[i][j]);
 			}
 			if (agent->grid[i][j][pit] == 1) {
 				SDL_RenderCopy(g_renderer, pit_texture, &pit_source_rect, &grid_rect[i][j]);
@@ -183,7 +154,15 @@ void Stage::Render() {
 
 	// 메시지 출력
 	SDL_SetRenderDrawColor(g_renderer, 200, 200, 200, 255);
-	SDL_RenderFillRect(g_renderer, &msg_box_rect);
+	{
+		//message = "Any Message";
+		SDL_Surface* msg_surface = TTF_RenderText_Blended(font, message, black);	// 문구 삽입 (한글X)
+		msg_texture = SDL_CreateTextureFromSurface(g_renderer, msg_surface);
+		msg_source_rect = { 0, 0, msg_surface->w, msg_surface->h };
+		msg_destination_rect = { 280, 650, msg_source_rect.w, msg_source_rect.h };
+		SDL_FreeSurface(msg_surface);
+		SDL_RenderFillRect(g_renderer, &msg_box_rect);
+	}
 
 	SDL_RenderCopy(g_renderer, msg_texture, &msg_source_rect, &msg_destination_rect);
 
@@ -203,6 +182,18 @@ void Stage::setWumpus() {
 			int random = rand() % 10;
 			if (random == 0) {
 				grid[x][y][wumpus] = true;
+				if (x > 0) {
+					grid[x - 1][y][stench] = true;
+				}
+				if (y > 0) {
+					grid[x][y - 1][stench] = true;
+				}
+				if (x < 5) {
+					grid[x + 1][y][stench] = true;
+				}
+				if (y < 5) {
+					grid[x][y + 1][stench] = true;
+				}
 			}
 		}
 	}
@@ -219,6 +210,18 @@ void Stage::setPit() {
 			int random = rand() % 10;
 			if (random == 0) {
 				grid[x][y][pit] = true;
+				if (x > 0) {
+					grid[x - 1][y][breeze] = true;
+				}
+				if (y > 0) {
+					grid[x][y - 1][breeze] = true;
+				}
+				if (x < 5) {
+					grid[x + 1][y][breeze] = true;
+				}
+				if (y < 5) {
+					grid[x][y + 1][breeze] = true;
+				}
 			}
 		}
 	}
@@ -262,11 +265,13 @@ void Stage::process() {
 	int y = agent->posCol;
 	if (grid[x][y][wumpus] == 1) {
 		agent->die();
+		message = "Died";
 		agent->setGrid(x, y, wumpus, true);
 		return;
 	}
 	else if (grid[x][y][pit] == 1) {
 		agent->die();
+		message = "Died";
 		agent->setGrid(x, y, pit, true);
 		return;
 	}
@@ -281,14 +286,29 @@ void Stage::process() {
 	bump = grid[x][y][wall];
 	action = agent->reasoning(isStench, isBreeze, isGlitter, bump);
 	agent->printState();
+	if (agent->action == go) {
+		message = "Go Forward";
+	}
+	else if (agent->action == turnL) {
+		message = "Turn Left";
+	}
+	else if (agent->action == turnR) {
+		message = "Turn Right";
+	}
+	else if (agent->action == bmp) {
+		message = "Bumped!";
+	}
+
 
 	if (action == 1) {
+		message = "Shot but not Screamed";
 		//화살이 날아가서 환경에 변화가 있는지
 		if (agent->direction == north) {
 			//agent->posRow++;
 			for (int arrow = agent->posRow; arrow >= 1; arrow--) {
 				if (grid[arrow][agent->posCol][wumpus] == true) {
 					grid[arrow][agent->posCol][wumpus] = false;
+					message = "Shot and Wumpus Screamed";
 					//스크림 울려퍼지게
 					break;
 				}
@@ -299,6 +319,7 @@ void Stage::process() {
 			for (int arrow = agent->posRow; arrow <= 4; arrow++) {
 				if (grid[arrow][agent->posCol][wumpus] == true) {
 					grid[arrow][agent->posCol][wumpus] = false;
+					message = "Shot and Wumpus Screamed";
 					//스크림 울려퍼지게
 					break;
 				}
@@ -309,6 +330,7 @@ void Stage::process() {
 			for (int arrow = agent->posCol; arrow <= 4; arrow++) {
 				if (grid[agent->posRow][arrow][wumpus] == true) {
 					grid[agent->posRow][arrow][wumpus] = false;
+					message = "Shot and Wumpus Screamed";
 					//스크림 울려퍼지게
 					break;
 				}
@@ -319,6 +341,7 @@ void Stage::process() {
 			for (int arrow = agent->posCol; arrow >= 1; arrow--) {
 				if (grid[agent->posRow][arrow][wumpus] == true) {
 					grid[agent->posRow][arrow][wumpus] = false;
+					message = "Shot and Wumpus Screamed";
 					//스크림 울려퍼지게
 					break;
 				}
@@ -327,6 +350,7 @@ void Stage::process() {
 	}
 	if (action == 2) {
 		// 금을 주운 후
+		message = "Grabbed Gold";
 		grid[x][y][glitter] = false;
 	}
 	if (action == 3) {

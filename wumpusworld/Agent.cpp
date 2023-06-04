@@ -9,6 +9,7 @@ void Agent::printState() {
 	cout << "col = " << posCol << "\n";
 }
 void Agent::goForward() {
+	action = go;
 	shot = false;
 	stk.push(pair<int, int>(posRow, posCol));
 	if (direction == north) {
@@ -41,6 +42,7 @@ void Agent::goForward() {
 	}
 }
 	void Agent::goForwardWithoutStacking() {
+		action = go;
 		shot = false;
 		stk.pop();
 		if (direction == north) {
@@ -74,6 +76,7 @@ void Agent::goForward() {
 
 	}
 	void Agent::turnLeft() {
+		action = turnL;
 		shot = false;
 		if (direction == east) {
 			direction = north;
@@ -93,6 +96,7 @@ void Agent::goForward() {
 		rightPosRow = tempCol;
 	}
 	void Agent::turnRight() {
+		action = turnR;
 		shot = false;
 		if (direction == north) {
 			direction = east;
@@ -116,13 +120,13 @@ void Agent::goForward() {
 		arrows--;
 	}
 	void Agent::climb() {
-
 	}
 	void Agent::grab() {
 		havingGold = true;
 	}
 	void Agent::die() {
 		//위치 1,1로 옮기기
+		action = dead;
 		posRow = 4;
 		posCol = 1;
 		direction = east;
@@ -184,11 +188,15 @@ void Agent::goForward() {
 	bool Agent::isGrid(int x, int y, int state) {
 		return grid[x][y][state];
 	}
+	int Agent::doAction() {
+
+	}
 	int Agent::reasoning(bool stench, bool breeze, bool glitter, bool bump) {
 		if (bump == true) {
 			//벽과 겹치면 튕겨져 나옴
 			setGrid(posRow, posCol, wall, true);
 			goBackward();
+			action = bmp;
 			return 0;
 		}
 		visited[posRow][posCol] = true;
@@ -281,6 +289,7 @@ void Agent::goForward() {
 		}
 		if (stench == true || isGrid(frontPosRow, frontPosCol, wumpus) == true) {
 			//7.냄새나거나 앞에 괴물이 있는 경우
+			setGrid(posRow, posCol, stench, true);
 			if (shot == true) {
 				//이미 쐈으면
 				goForward();

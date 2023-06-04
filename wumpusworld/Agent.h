@@ -28,6 +28,7 @@ public:
 	stack<pair<int, int>> stk; //way so far
 	bool end=false;
 	bool shot = false;
+	int action = -1;
 
 	Agent();
 	void printState();
@@ -42,5 +43,6 @@ public:
 	void grab();
 	void die();
 	void goBackward();
+	int doAction();
 	int reasoning(bool stench, bool breeze, bool glitter, bool bump);
 };
