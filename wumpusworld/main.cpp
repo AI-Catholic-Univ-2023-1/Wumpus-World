@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 			continue;
 		
 		stage->HandleEvents(); 
-		if (cur_time_ms - g_last_time_ms >= 200 && stage->end == false) {//reasoning and acting delay least 33
+		if (cur_time_ms - g_last_time_ms >= stage->speed && stage->end == false) {//reasoning and acting delay least 33
 			stage->Update();
 			g_last_time_ms = cur_time_ms;
 		}

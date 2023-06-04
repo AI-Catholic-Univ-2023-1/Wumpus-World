@@ -148,6 +148,18 @@ void Stage::HandleEvents()
 				end = false;
 				reset();
 			}
+			else if (event.key.keysym.sym == SDLK_1) {
+				speed = 1000;
+			}
+			else if (event.key.keysym.sym == SDLK_2) {
+				speed = 500;
+			}
+			else if (event.key.keysym.sym == SDLK_3) {
+				speed = 200;
+			}
+			else if (event.key.keysym.sym == SDLK_4) {
+				speed = 50;
+			}
 			break;
 		default:
 			break;
