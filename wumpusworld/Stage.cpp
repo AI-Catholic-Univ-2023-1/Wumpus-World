@@ -3,6 +3,7 @@
 #include<string>
 
 Stage::Stage() {
+	agent = new Agent();
 	// Agent 이미지 로드
 	SDL_Surface* agent_surface = IMG_Load("Resources/agent.png");					// 이미지 로드
 	agent_texture = SDL_CreateTextureFromSurface(g_renderer, agent_surface);		// 로드한 이미지를 텍스쳐로 만들기
@@ -77,7 +78,6 @@ Stage::Stage() {
 			fill_n(grid[i][j], 8, 0);
 		}
 	}
-
 	setWall();
 	setGold();
 	setWumpus();
@@ -119,7 +119,21 @@ Stage::~Stage() {
 	SDL_DestroyTexture(actionMsg_texture);
 	TTF_CloseFont(font);
 }
+void Stage::reset() {
 
+	delete agent;
+	agent = new Agent();
+	for (int i = 0; i < 6; i++) {
+		for (int j = 0; j < 6; j++) {
+			fill_n(grid[i][j], 8, 0);
+		}
+	}
+	setWall();
+	setGold();
+	setWumpus();
+	stenchGridCheck();
+	setPit();
+}
 void Stage::HandleEvents()
 {
 	SDL_Event event;
@@ -128,6 +142,12 @@ void Stage::HandleEvents()
 
 		case SDL_QUIT:
 			g_flag_running = false;
+			break;
+		case SDL_KEYDOWN:
+			if (event.key.keysym.sym == SDLK_SPACE && end == true) {
+				end = false;
+				reset();
+			}
 			break;
 		default:
 			break;

@@ -32,7 +32,6 @@ int main(int argc, char* argv[])
 	g_window = SDL_CreateWindow("WumpusWorld", 300, 50, 1000, 750, 0);
 	g_renderer = SDL_CreateRenderer(g_window, -1, 0);
 
-	agent = new Agent();
 	InitGame();
 	g_last_time_ms = SDL_GetTicks();
 

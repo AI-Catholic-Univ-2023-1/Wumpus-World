@@ -87,6 +87,7 @@ public:
 	Stage();
 	~Stage();
 
+	void reset();
 	void stenchGridCheck();
 	void HandleEvents();
 	void Update();
