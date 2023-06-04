@@ -138,9 +138,9 @@ void Agent::goForward() {
 		direction = east;
 		frontPosRow = posRow;
 		frontPosCol = posCol + 1;
-		leftPosRow = posRow + 1;
+		leftPosRow = posRow - 1;
 		leftPosCol = posCol;
-		rightPosRow = posRow - 1;
+		rightPosRow = posRow + 1;
 		rightPosCol = posCol;
 		backPosRow = posRow;
 		backPosCol = posCol - 1;
