@@ -32,7 +32,6 @@ int main(int argc, char* argv[])
 	g_window = SDL_CreateWindow("WumpusWorld", 300, 50, 1000, 750, 0);
 	g_renderer = SDL_CreateRenderer(g_window, -1, 0);
 
-	agent = new Agent();
 	InitGame();
 	g_last_time_ms = SDL_GetTicks();
 
@@ -47,16 +46,15 @@ int main(int argc, char* argv[])
 			continue;
 		
 		stage->HandleEvents(); 
-		if (cur_time_ms - g_last_time_ms >= 1000) {
+		if (cur_time_ms - g_last_time_ms >= stage->speed && stage->end == false && stage->pause == false) {//reasoning and acting delay least 33
 			stage->Update();
 			g_last_time_ms = cur_time_ms;
 		}
 		stage->Render();
 	}
 
-	//delete[] game_phases;
-	//delete fade;
-	//delete player;
+	delete stage;
+	delete agent;
 
 	ClearGame();
 

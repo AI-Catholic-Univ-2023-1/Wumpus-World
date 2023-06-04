@@ -26,7 +26,7 @@ protected:
 	// Grid
 	SDL_Rect grid_rect[6][6];
 
-	// Image
+	// Texture
 	SDL_Texture* agent_texture;
 	SDL_Texture* wumpus_texture;
 	SDL_Texture* pit_texture;
@@ -34,6 +34,12 @@ protected:
 	SDL_Texture* stench_texture;
 	SDL_Texture* breeze_texture;
 	SDL_Texture* wall_texture;
+	SDL_Texture* arrow_texture;
+	SDL_Texture* x_texture;
+	SDL_Texture* died_texture;
+	SDL_Texture* action_texture;
+
+	// Rect
 	SDL_Rect agent_source_rect;
 	SDL_Rect wumpus_source_rect;
 	SDL_Rect pit_source_rect;
@@ -41,18 +47,39 @@ protected:
 	SDL_Rect stench_source_rect;
 	SDL_Rect breeze_source_rect;
 	SDL_Rect wall_source_rect;
+	SDL_Rect arrow_source_rect;
+	SDL_Rect arrow_destination_rect;
+	SDL_Rect x_source_rect;
+	SDL_Rect x_destination_rect;
+	SDL_Rect died_source_rect;
+	SDL_Rect died_destination_rect;
+	SDL_Rect action_source_rect;
+	SDL_Rect action_destination_rect;
 
 	// Font
 	SDL_Texture* msg_texture;
-	SDL_Rect msg_box_rect = { 250, 650, 490, 80 };
+	SDL_Texture* arrowMsg_texture;
+	SDL_Texture* diedMsg_texture;
+	SDL_Texture* actionMsg_texture;
+	SDL_Rect msg_box_rect = { 130, 650, 700, 80 };
+	SDL_Rect right_box_rect = { 755, 30, 190, 270 };
 	SDL_Rect msg_source_rect;
 	SDL_Rect msg_destination_rect;
+	SDL_Rect arrowMsg_source_rect;
+	SDL_Rect arrowMsg_destination_rect;
+	SDL_Rect diedMsg_source_rect;
+	SDL_Rect diedMsg_destination_rect;
+	SDL_Rect actionMsg_source_rect;
+	SDL_Rect actionMsg_destination_rect;
 	TTF_Font* font;
 	SDL_Color black = { 0,0,0,0 };
 	const char* message;
+	const char* arrowMsg;
+	const char* diedMsg;
+	const char* actionMsg;
 
 public:
-	int grid[6][6][8];//x,y,state
+	bool grid[6][6][8];//x,y,state
 	int xarr[4] = { 1,-1,0,0 };
 	int yarr[4] = { 0,0,1,-1 };
 	int action = 0;
@@ -60,6 +87,8 @@ public:
 	Stage();
 	~Stage();
 
+	void reset();
+	void stenchGridCheck();
 	void HandleEvents();
 	void Update();
 	void Render();

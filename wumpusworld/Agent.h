@@ -20,7 +20,7 @@ public:
 	int backPosRow = 4;
 	int backPosCol = 0;
 	int direction = east;
-	int grid[6][6][8]; //x,y,state 
+	bool grid[6][6][9]; //x,y,state 
 	bool visited[6][6];
 	int arrows = 2;
 	bool havingGold = false;
@@ -29,8 +29,11 @@ public:
 	bool shot = false;
 	bool percept = false;
 	int action = -1;
+	int deathCount = 0;
+	int costFunc = 0;
 
 	Agent();
+	void checkSafe();
 	void printState();
 	void setGrid(int x, int y, int state, bool t);
 	bool isGrid(int x, int y, int state);
