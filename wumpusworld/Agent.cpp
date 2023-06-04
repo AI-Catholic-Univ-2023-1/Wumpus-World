@@ -1,42 +1,59 @@
 #include "Agent.h"
 
 Agent::Agent() {
+}
+void Agent::printState() {
+	cout << "direction = " << direction<<"\n";
+	cout << "row = " << posRow << "\n";
+	cout << "col = " << posCol << "\n";
+	cout << "Lrow = " << leftPosRow << "\n";
+	cout << "Lcol = " << leftPosCol << "\n";
+	cout << "Rrow = " << rightPosRow << "\n";
+	cout << "Rcol = " << rightPosCol << "\n";
+	cout << "Brow = " << backPosRow << "\n";
+	cout << "Bcol = " << backPosCol << "\n";
 
 }
-	void Agent::goForward() {
-		shot = false;
-		stk.push(pair<int,int>(posRow, posCol));
-		if (direction == north) {
-			posRow--;
-			frontPosRow--;
-			backPosRow--;
-			leftPosRow--;
-			rightPosRow--;
-		}
-		else if (direction == south) {
-			posRow++;
-			frontPosRow++;
-			backPosRow++;
-			leftPosRow++;
-			rightPosRow++;
-		}
-		else if (direction == east) {
-			posCol++;
-			frontPosCol++;
-			backPosCol++;
-			leftPosCol++;
-			rightPosCol++;
-		}
-		else if (direction == west) {
-			posCol--;
-			frontPosCol--;
-			backPosCol--;
-			leftPosCol--;
-			rightPosCol--;
-		}
+void Agent::goForward() {
+	shot = false;
+	if (visited[frontPosRow][frontPosCol] == false) {
+		stk.push(pair<int, int>(posRow, posCol));
 	}
+	else {
+		stk.pop();
+	}
+	if (direction == north) {
+		posRow--;
+		frontPosRow--;
+		backPosRow--;
+		leftPosRow--;
+		rightPosRow--;
+	}
+	else if (direction == south) {
+		posRow++;
+		frontPosRow++;
+		backPosRow++;
+		leftPosRow++;
+		rightPosRow++;
+	}
+	else if (direction == east) {
+		posCol++;
+		frontPosCol++;
+		backPosCol++;
+		leftPosCol++;
+		rightPosCol++;
+	}
+	else if (direction == west) {
+		posCol--;
+		frontPosCol--;
+		backPosCol--;
+		leftPosCol--;
+		rightPosCol--;
+	}
+}
 	void Agent::goForwardWithoutStacking() {
 		shot = false;
+		stk.pop();
 		if (direction == north) {
 			posRow--;
 			frontPosRow--;
@@ -110,14 +127,13 @@ Agent::Agent() {
 		arrows--;
 	}
 	void Agent::climb() {
-
 	}
 	void Agent::grab() {
 		havingGold = true;
 	}
 	void Agent::die() {
 		//위치 1,1로 옮기기
-		posRow = 1;
+		posRow = 4;
 		posCol = 1;
 		direction = east;
 		frontPosRow = posRow;
@@ -131,12 +147,21 @@ Agent::Agent() {
 		//화살개수 초기화
 		arrows = 2;
 		//스택초기화
-		stack<pair<int, int>> stk;
+		while (!stk.empty()) {
+			stk.pop();
+		}
+		//visited 초기화
+		for (int i = 0; i < 6; i++) {
+			for (int j = 0; j < 6; j++) {
+				visited[i][j] = false;
+			}
+		}
 	}
 	void Agent::setGrid(int x, int y, int state, bool t) {
 		grid[x][y][state] = t;
 	}
 	void Agent::goBackward() {
+		stk.pop();
 		if (direction == north) {
 			posRow++;
 			frontPosRow++;
@@ -169,15 +194,45 @@ Agent::Agent() {
 	bool Agent::isGrid(int x, int y, int state) {
 		return grid[x][y][state];
 	}
-	int Agent::reasoning(bool stench, bool breeze, bool glitter, bool bump) {
-		if (bump == true) {
-			//벽과 겹치면 튕겨져 나옴
-			setGrid(posRow, posCol, wall, true);
+	void Agent::doAction() {
+		if (action == go) {
+			goForward();
+		}
+		else if (action == turnL) {
+			turnLeft();
+		}
+		else if (action == turnR) {
+			turnRight();
+		}
+		else if (action == grb) {
+			grab();
+		}
+		else if (action == sht) {
+			shoot();
+		}
+		else if (action == clmb) {
+			climb();
+		}
+		else if (action == bmp) {
 			goBackward();
-			return 0;
+		}
+		else if (action == dead) {
+			die();
+		}
+	}
+	void Agent::reasoning(bool stench, bool breeze, bool glitter, bool bump, bool death) {
+		if (death == true) {
+			action = dead;
+			return;
 		}
 		visited[posRow][posCol] = true;
 		setGrid(posRow, posCol, safe, true);
+		if (bump == true) {
+			//벽과 겹치면 튕겨져 나옴
+			setGrid(posRow, posCol, wall, true);
+			action = bmp;
+			return;
+		}
 		if (!stench && !breeze) {
 			//아무 일도 없으면 사방 안전
 			setGrid(frontPosRow, frontPosCol, safe, true);
@@ -187,41 +242,42 @@ Agent::Agent() {
 		}
 		if (stk.empty() && havingGold) {
 			//금이 있고 1,1에 도착
-			climb();
-			return 3;
+			action = clmb;
+			return;
 		}
 		if (havingGold) {
 			// 금이 있고 아직 1,1에 도착하지 못함
 			if (frontPosRow != stk.top().first || frontPosCol != stk.top().second) {
 				//왔던 타일을 바라보고 있지 않을 경우
-				turnRight();
-				return 0;
+				action = turnR;
+				return;
 			}
-			else {
-				goForwardWithoutStacking();
-				return 0;
-			}
+			action = go;
+			return;
+		
 		}
 		if (glitter == true) {
-			grab();
-			return 2;
+			action = grb;
+			return;
 		}
+
+
 		// 방문하지 않고 벽이 아닌 안전한 타일로 이동
 		if (visited[frontPosRow][frontPosCol] == false && isGrid(frontPosRow, frontPosCol, safe) == true && isGrid(frontPosRow, frontPosCol, wall) == false) {
-			goForward();
-			return 0;
+			action = go;
+			return;
 		}
 		else if (visited[rightPosRow][rightPosCol] == false && isGrid(rightPosRow, rightPosCol, safe) == true && isGrid(rightPosRow, rightPosCol, wall) == false) {
-			turnRight();
-			return 0;
+			action = turnR;
+			return;
 		}
 		else if (visited[leftPosRow][leftPosCol] == false && isGrid(leftPosRow, leftPosCol, safe) == true && isGrid(leftPosRow, leftPosCol, wall) == false) {
-			turnLeft();
-			return 0;
+			action = turnL;
+			return;
 		}
 		else if (visited[backPosRow][backPosCol] == false && isGrid(backPosRow, backPosCol, safe) == true && isGrid(backPosRow, backPosCol, wall) == false) {
-			turnRight();
-			return 0;
+			action = turnR;
+			return;
 		}
 
 		if (
@@ -231,67 +287,68 @@ Agent::Agent() {
 			(isGrid(rightPosRow, rightPosCol, wall) == true || isGrid(rightPosRow, rightPosCol, pit) == true)
 			) {
 			//사방이 갈 수 없는 경우
-			return 3;
+			cout << "실패";
+			return;
 		}
 
 		if (visited[frontPosRow][frontPosCol] == true) {
 			//앞이 방문한 타일일 경우
 			if (
-				(isGrid(backPosRow, backPosCol, wall) == true || isGrid(backPosRow, backPosCol, pit) == true || visited[backPosRow][backPosCol]==true) &&
-				(isGrid(leftPosRow, leftPosCol, wall) == true || isGrid(leftPosRow,leftPosCol,pit) == true|| visited[leftPosRow][leftPosCol]==true) &&
-				(isGrid(rightPosRow, rightPosCol, wall) == true || isGrid(rightPosRow,rightPosCol,pit)==true|| visited[rightPosRow][rightPosCol]==true)
+				(isGrid(backPosRow, backPosCol, wall) == true || isGrid(backPosRow, backPosCol, pit) == true || visited[backPosRow][backPosCol] == true) &&
+				(isGrid(leftPosRow, leftPosCol, wall) == true || isGrid(leftPosRow, leftPosCol, pit) == true || visited[leftPosRow][leftPosCol] == true) &&
+				(isGrid(rightPosRow, rightPosCol, wall) == true || isGrid(rightPosRow, rightPosCol, pit) == true || visited[rightPosRow][rightPosCol] == true)
 				) {
 				//뒤, 좌, 우 방문불가(Pit 또는 벽 또는 방문함)
 				if (frontPosRow != stk.top().first || frontPosCol != stk.top().second) {
 					//왔던 타일을 바라보고 있지 않을 경우
-					turnRight();
-					return 0;
+					action = turnR;
+					return;
 				}
 				else {
 					setGrid(posRow, posRow, wall, true);
-					goForwardWithoutStacking();
-					stk.pop();
-					return 0;
+					action = go;
+					return;
 				}
 			}
 			else {
-				turnRight();
-				return 0;
+				action = turnR;
+				return;
 			}
 		}
 		if (isGrid(frontPosRow, frontPosCol, wall) == true) {
 			//앞이 벽일 경우
-			turnRight();
-			return 0;
+			action = turnR;
+			return;
 		}
 		if (stench == true || isGrid(frontPosRow, frontPosCol, wumpus) == true) {
 			//7.냄새나거나 앞에 괴물이 있는 경우
 			if (shot == true) {
 				//이미 쐈으면
-				goForward();
-				return 0;
+				action = go;
+				return;
 			}
 			else {
 				if (arrows > 0) {
-					shoot();
-					return 1;
+					action = sht;
+					return;
 				}
 				else {
-					goForward();
-					return 0;
+					action = go;
+					return;
 				}
 			}
 		}
 		if (isGrid(frontPosRow, frontPosCol, pit) == true) {
 			//앞타일에 구덩이
-			turnRight();
-			return 0;
+			action = turnR;
+			return;
 		}
 		if (breeze == true) {
 			//바람이 느껴짐
-			goForward();
-			return 0;
+			action = go;
+			return;
 		}
-		goForward();
-		return 0;
+		action = go;
+		return;
 	}
+	

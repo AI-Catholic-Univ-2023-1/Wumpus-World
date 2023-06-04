@@ -1,9 +1,9 @@
 #pragma once
 #ifndef __STAGE_H
 #define __STAGE_H
+#include <windows.h>
 #include "Game.h"
 #include "Grid.h"
-#include <windows.h>
 
 
 enum AgentLocation
@@ -24,30 +24,35 @@ protected:
 	SDL_Color white = { 255,255,255,0 };
 
 	// Grid
-	SDL_Rect grid_rect[4][4];
+	SDL_Rect grid_rect[6][6];
 
 	// Image
 	SDL_Texture* agent_texture;
 	SDL_Texture* wumpus_texture;
 	SDL_Texture* pit_texture;
 	SDL_Texture* gold_texture;
+	SDL_Texture* stench_texture;
+	SDL_Texture* breeze_texture;
+	SDL_Texture* wall_texture;
 	SDL_Rect agent_source_rect;
 	SDL_Rect wumpus_source_rect;
 	SDL_Rect pit_source_rect;
 	SDL_Rect gold_source_rect;
+	SDL_Rect stench_source_rect;
+	SDL_Rect breeze_source_rect;
+	SDL_Rect wall_source_rect;
 
-	// Agent image
-	int agent_location[2] = { 3,0 };
-	int agent_rotation = 0;
-
-	// Wumpus, PIt, Gold Location
-	int wumpus_location[2] = { 0,0 };
-	int pit1_location[2] = { 0,0 };
-	int pit2_location[2] = { 0,0 };
-	int gold_location[2] = { 0,0 };
+	// Font
+	SDL_Texture* msg_texture;
+	SDL_Rect msg_box_rect = { 250, 650, 490, 80 };
+	SDL_Rect msg_source_rect;
+	SDL_Rect msg_destination_rect;
+	TTF_Font* font;
+	SDL_Color black = { 0,0,0,0 };
+	const char* message;
 
 public:
-	int grid[6][6][7];//x,y,state
+	int grid[6][6][8];//x,y,state
 	int xarr[4] = { 1,-1,0,0 };
 	int yarr[4] = { 0,0,1,-1 };
 	int action = 0;
