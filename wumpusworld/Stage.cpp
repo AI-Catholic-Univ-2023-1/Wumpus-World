@@ -123,10 +123,10 @@ void Stage::Render() {
 			if (agent->grid[i][j][wumpus] == 1) {
 				SDL_RenderCopy(g_renderer, wumpus_texture, &wumpus_source_rect, &grid_rect[i][j]);
 			}
-			if (agent->grid[i][j][stench] == 1) {
+			if (grid[i][j][stench] == 1 && agent->visited[i][j]) {
 				SDL_RenderCopy(g_renderer, stench_texture, &stench_source_rect, &grid_rect[i][j]);
 			}
-			if (agent->grid[i][j][breeze] == 1) {
+			if (grid[i][j][breeze] == 1 && agent->visited[i][j]) {
 				SDL_RenderCopy(g_renderer, breeze_texture, &breeze_source_rect, &grid_rect[i][j]);
 			}
 			if (agent->grid[i][j][pit] == 1) {
@@ -260,102 +260,138 @@ void Stage::setWall() {
 	grid[1][5][wall] = true;
 }
 void Stage::process() {
-
 	int x = agent->posRow;
 	int y = agent->posCol;
-	if (grid[x][y][wumpus] == 1) {
-		agent->die();
-		message = "Died";
-		agent->setGrid(x, y, wumpus, true);
-		return;
-	}
-	else if (grid[x][y][pit] == 1) {
-		agent->die();
-		message = "Died";
-		agent->setGrid(x, y, pit, true);
-		return;
-	}
 
-	bool isStench;
-	bool isBreeze;
-	bool isGlitter;
-	bool bump;
-	isStench = grid[x][y][stench];
-	isBreeze = grid[x][y][breeze];
-	isGlitter = grid[x][y][glitter];
-	bump = grid[x][y][wall];
-	action = agent->reasoning(isStench, isBreeze, isGlitter, bump);
-	agent->printState();
-	if (agent->action == go) {
-		message = "Go Forward";
+	if (agent->percept == false) {
+		agent->percept = true;
+		if (grid[x][y][wumpus] == 1) {
+			message = "Died";
+			agent->setGrid(x, y, wumpus, true);
+			agent->reasoning(false, false, false, false, true);
+			return;
+		}
+		else if (grid[x][y][pit] == 1) {
+			message = "Died";
+			agent->setGrid(x, y, pit, true);
+			agent->reasoning(false, false, false, false, true);
+			return;
+		}
+		bool isStench;
+		bool isBreeze;
+		bool isGlitter;
+		bool bump;
+		isStench = grid[x][y][stench];
+		isBreeze = grid[x][y][breeze];
+		isGlitter = grid[x][y][glitter];
+		bump = grid[x][y][wall];
+		agent->reasoning(isStench, isBreeze, isGlitter, bump, false);
+		if (isStench&&isBreeze) {
+			message = "Stench & Breeze";
+		}
+		else if (isStench) {
+			message = "Stench";
+		}
+		else if (isBreeze) {
+			message = "Breeze";
+		}
 	}
-	else if (agent->action == turnL) {
-		message = "Turn Left";
-	}
-	else if (agent->action == turnR) {
-		message = "Turn Right";
-	}
-	else if (agent->action == bmp) {
-		message = "Bumped!";
-	}
-
-
-	if (action == 1) {
-		message = "Shot but not Screamed";
-		//화살이 날아가서 환경에 변화가 있는지
-		if (agent->direction == north) {
-			//agent->posRow++;
-			for (int arrow = agent->posRow; arrow >= 1; arrow--) {
-				if (grid[arrow][agent->posCol][wumpus] == true) {
-					grid[arrow][agent->posCol][wumpus] = false;
-					message = "Shot and Wumpus Screamed";
-					//스크림 울려퍼지게
-					break;
+	else {
+		agent->percept = false;
+		agent->doAction();
+		if (agent->action == go) {
+			message = "Go Forward";
+		}
+		else if (agent->action == turnL) {
+			message = "Turn Left";
+		}
+		else if (agent->action == turnR) {
+			message = "Turn Right";
+		}
+		else if (agent->action == bmp) {
+			message = "Bumped!";
+		}
+		else if (agent->action == sht) {
+			message = "Shot but not Screamed";
+			//화살이 날아가서 환경에 변화가 있는지
+			int r, c;
+			bool killed = false;
+			if (agent->direction == north) {
+				//agent->posRow++;
+				for (int arrow = agent->posRow; arrow >= 1; arrow--) {
+					if (grid[arrow][agent->posCol][wumpus] == true) {
+						grid[arrow][agent->posCol][wumpus] = false;
+						r = arrow;
+						c = y;
+						killed = true;
+						message = "Shot and Wumpus Screamed";
+						//스크림 울려퍼지게
+						break;
+					}
+				}
+			}
+			else if (agent->direction == south) {
+				//agent->posRow--;
+				for (int arrow = agent->posRow; arrow <= 4; arrow++) {
+					if (grid[arrow][agent->posCol][wumpus] == true) {
+						grid[arrow][agent->posCol][wumpus] = false;
+						r = arrow;
+						c = y;
+						killed = true;
+						message = "Shot and Wumpus Screamed";
+						//스크림 울려퍼지게
+						break;
+					}
+				}
+			}
+			else if (agent->direction == east) {
+				//agent->posCol++;
+				for (int arrow = agent->posCol; arrow <= 4; arrow++) {
+					if (grid[agent->posRow][arrow][wumpus] == true) {
+						grid[agent->posRow][arrow][wumpus] = false;
+						r = x;
+						c = arrow;
+						killed = true;
+						message = "Shot and Wumpus Screamed";
+						//스크림 울려퍼지게
+						break;
+					}
+				}
+			}
+			else if (agent->direction == west) {
+				//agent->posCol--;
+				for (int arrow = agent->posCol; arrow >= 1; arrow--) {
+					if (grid[agent->posRow][arrow][wumpus] == true) {
+						grid[agent->posRow][arrow][wumpus] = false;
+						r = x;
+						c = arrow;
+						killed = true;
+						message = "Shot and Wumpus Screamed";
+						//스크림 울려퍼지게
+						break;
+					}
+				}
+			}
+			if (killed) {
+				if (r > 0) {
+					grid[r - 1][c][stench] = false;
+				}
+				if (c > 0) {
+					grid[r][c - 1][stench] = false;
+				}
+				if (r < 5) {
+					grid[r + 1][c][stench] = false;
+				}
+				if (c < 5) {
+					grid[r][c + 1][stench] = false;
 				}
 			}
 		}
-		else if (agent->direction == south) {
-			//agent->posRow--;
-			for (int arrow = agent->posRow; arrow <= 4; arrow++) {
-				if (grid[arrow][agent->posCol][wumpus] == true) {
-					grid[arrow][agent->posCol][wumpus] = false;
-					message = "Shot and Wumpus Screamed";
-					//스크림 울려퍼지게
-					break;
-				}
-			}
+		else if (agent->action == grb) {
+			// 금을 주운 후
+			message = "Grabbed Gold";
+			grid[x][y][glitter] = false;
 		}
-		else if (agent->direction == east) {
-			//agent->posCol++;
-			for (int arrow = agent->posCol; arrow <= 4; arrow++) {
-				if (grid[agent->posRow][arrow][wumpus] == true) {
-					grid[agent->posRow][arrow][wumpus] = false;
-					message = "Shot and Wumpus Screamed";
-					//스크림 울려퍼지게
-					break;
-				}
-			}
-		}
-		else if (agent->direction == west) {
-			//agent->posCol--;
-			for (int arrow = agent->posCol; arrow >= 1; arrow--) {
-				if (grid[agent->posRow][arrow][wumpus] == true) {
-					grid[agent->posRow][arrow][wumpus] = false;
-					message = "Shot and Wumpus Screamed";
-					//스크림 울려퍼지게
-					break;
-				}
-			}
-		}
-	}
-	if (action == 2) {
-		// 금을 주운 후
-		message = "Grabbed Gold";
-		grid[x][y][glitter] = false;
-	}
-	if (action == 3) {
-		//금이 있으면 성공 없으면 실패
-		//종료
 	}
 	return;
 }

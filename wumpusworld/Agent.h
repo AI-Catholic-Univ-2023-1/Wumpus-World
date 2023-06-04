@@ -24,10 +24,10 @@ public:
 	bool visited[6][6];
 	int arrows = 2;
 	bool havingGold = false;
-	bool dead = false;
 	stack<pair<int, int>> stk; //way so far
 	bool end=false;
 	bool shot = false;
+	bool percept = false;
 	int action = -1;
 
 	Agent();
@@ -43,6 +43,6 @@ public:
 	void grab();
 	void die();
 	void goBackward();
-	int doAction();
-	int reasoning(bool stench, bool breeze, bool glitter, bool bump);
+	void doAction();
+	void reasoning(bool stench, bool breeze, bool glitter, bool bump, bool dead);
 };
