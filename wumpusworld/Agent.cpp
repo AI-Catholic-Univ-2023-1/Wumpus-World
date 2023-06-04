@@ -101,7 +101,7 @@ void Agent::goForward() {
 		backPosRow = rightPosRow;
 		backPosCol = rightPosCol;
 		rightPosRow = tempRow;
-		rightPosRow = tempCol;
+		rightPosCol = tempCol;
 	}
 	void Agent::turnRight() {
 		shot = false;
@@ -116,7 +116,7 @@ void Agent::goForward() {
 		frontPosRow = rightPosRow;
 		frontPosCol = rightPosCol;
 		rightPosRow = backPosRow;
-		rightPosRow = backPosCol;
+		rightPosCol = backPosCol;
 		backPosRow = leftPosRow;
 		backPosCol = leftPosCol;
 		leftPosRow = tempRow;
