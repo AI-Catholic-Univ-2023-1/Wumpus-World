@@ -34,6 +34,7 @@ protected:
 	SDL_Texture* stench_texture;
 	SDL_Texture* breeze_texture;
 	SDL_Texture* wall_texture;
+	SDL_Texture* arrow_texture;
 	SDL_Rect agent_source_rect;
 	SDL_Rect wumpus_source_rect;
 	SDL_Rect pit_source_rect;
@@ -41,15 +42,21 @@ protected:
 	SDL_Rect stench_source_rect;
 	SDL_Rect breeze_source_rect;
 	SDL_Rect wall_source_rect;
+	SDL_Rect arrow_source_rect;
+	SDL_Rect arrow_destination_rect;
 
 	// Font
 	SDL_Texture* msg_texture;
-	SDL_Rect msg_box_rect = { 250, 650, 490, 80 };
+	SDL_Texture* arrowMsg_texture;
+	SDL_Rect msg_box_rect = { 130, 650, 700, 80 };
 	SDL_Rect msg_source_rect;
 	SDL_Rect msg_destination_rect;
+	SDL_Rect arrowMsg_source_rect;
+	SDL_Rect arrowMsg_destination_rect;
 	TTF_Font* font;
 	SDL_Color black = { 0,0,0,0 };
 	const char* message;
+	const char* arrow;
 
 public:
 	int grid[6][6][8];//x,y,state

@@ -43,6 +43,13 @@ Stage::Stage() {
 	SDL_FreeSurface(wall_surface);
 	wall_source_rect = { 0, 0 ,920 ,920 };
 
+	// Arrow 이미지 로드
+	SDL_Surface* arrow_surface = IMG_Load("Resources/arrow.png");
+	arrow_texture = SDL_CreateTextureFromSurface(g_renderer, arrow_surface);
+	SDL_FreeSurface(arrow_surface);
+	arrow_source_rect = { 0, 0 ,800 ,800 };
+	arrow_destination_rect = { 20, 435, 50, 50 };
+
 	for (int i = 0; i < 6; i++) {
 		for (int j = 0; j < 6; j++) {
 			fill_n(grid[i][j], 8, 0);
@@ -55,13 +62,21 @@ Stage::Stage() {
 	setGold();
 
 	// Font
-	font = TTF_OpenFont("Resources/NanumSquareNeo-dEb.ttf", 60);				// 폰트 크기 설정 및 로드
+	font = TTF_OpenFont("Resources/NanumSquareNeo-dEb.ttf", 40);				// 폰트 크기 설정 및 로드
 	message = "Wumpus World";
 	SDL_Surface* msg_surface = TTF_RenderText_Blended(font, message, black);	// 문구 삽입 (한글X)
 	msg_texture = SDL_CreateTextureFromSurface(g_renderer, msg_surface);
 	msg_source_rect = { 0, 0, msg_surface->w, msg_surface->h };
-	msg_destination_rect = { 280, 650, msg_source_rect.w, msg_source_rect.h };
+	msg_destination_rect = { 40, 670, msg_source_rect.w, msg_source_rect.h };
 	SDL_FreeSurface(msg_surface);
+
+	// Arrow Message
+	arrow = "X 2";
+	SDL_Surface* arrowMsg_surface = TTF_RenderText_Blended(font, arrow, black);
+	arrowMsg_texture = SDL_CreateTextureFromSurface(g_renderer, arrowMsg_surface);
+	arrowMsg_source_rect = { 0, 0, arrowMsg_surface->w, arrowMsg_surface->h };
+	arrowMsg_destination_rect = { 80, 440, arrowMsg_source_rect.w, arrowMsg_source_rect.h };
+	SDL_FreeSurface(arrowMsg_surface);
 }
 
 Stage::~Stage() {
@@ -75,6 +90,7 @@ Stage::~Stage() {
 	SDL_DestroyTexture(breeze_texture);
 	SDL_DestroyTexture(wall_texture);
 	SDL_DestroyTexture(msg_texture);
+	SDL_DestroyTexture(arrowMsg_texture);
 	TTF_CloseFont(font);
 }
 
@@ -104,7 +120,6 @@ void Stage::Render() {
 
 
 	// 6x6 Grid
-	// 확인하기 어려워서 일단은 4x4
 	for (int i = 0; i < 6; i++) {
 		for (int j = 0; j < 6; j++) {
 			// 사각형 위치 지정
@@ -120,51 +135,48 @@ void Stage::Render() {
 				SDL_RenderFillRect(g_renderer, &grid_rect[i][j]);
 			}
 			 
-			if (agent->grid[i][j][wumpus] == 1) {
+			if (agent->grid[i][j][wumpus] == 1) {	// Wumpus
 				SDL_RenderCopy(g_renderer, wumpus_texture, &wumpus_source_rect, &grid_rect[i][j]);
 			}
-			if (grid[i][j][stench] == 1 && agent->visited[i][j]) {
+			if (grid[i][j][stench] == 1 && agent->visited[i][j]) {	// Stench
 				SDL_RenderCopy(g_renderer, stench_texture, &stench_source_rect, &grid_rect[i][j]);
 			}
-			if (grid[i][j][breeze] == 1 && agent->visited[i][j]) {
+			if (grid[i][j][breeze] == 1 && agent->visited[i][j]) {	// Breeze
 				SDL_RenderCopy(g_renderer, breeze_texture, &breeze_source_rect, &grid_rect[i][j]);
 			}
-			if (agent->grid[i][j][pit] == 1) {
+			if (agent->grid[i][j][pit] == 1) {		// Pit
 				SDL_RenderCopy(g_renderer, pit_texture, &pit_source_rect, &grid_rect[i][j]);
 			}
-			if (agent->grid[i][j][glitter] == 1) {
+			if (agent->grid[i][j][glitter] == 1) {	// Glitter
 				SDL_RenderCopy(g_renderer, gold_texture, &gold_source_rect, &grid_rect[i][j]);
 			}
-			if (agent->grid[i][j][wall] == 1) {
+			if (agent->grid[i][j][wall] == 1) {		// Wall
 				SDL_RenderCopy(g_renderer, wall_texture, &wall_source_rect, &grid_rect[i][j]);
 			}
-
+			// Agent
 			if (i == agent->posRow && j == agent->posCol) {
 				SDL_RenderCopyEx(g_renderer, agent_texture, &agent_source_rect, &grid_rect[i][j], agent->direction * 90, NULL, SDL_FLIP_NONE);
 			}
 		}
 	}
 
-	// *********임시*********
-	// Stench, Breeze 출력
-	SDL_Rect tmp_rect1 = { 900,0,70,70 };
-	SDL_Rect tmp_rect2 = { 900,100,70,70 };
-	SDL_RenderCopy(g_renderer, stench_texture, &stench_source_rect, &tmp_rect1);
-	SDL_RenderCopy(g_renderer, breeze_texture, &breeze_source_rect, &tmp_rect2);
 
 	// 메시지 출력
 	SDL_SetRenderDrawColor(g_renderer, 200, 200, 200, 255);
+	SDL_RenderFillRect(g_renderer, &msg_box_rect);
 	{
-		//message = "Any Message";
 		SDL_Surface* msg_surface = TTF_RenderText_Blended(font, message, black);	// 문구 삽입 (한글X)
 		msg_texture = SDL_CreateTextureFromSurface(g_renderer, msg_surface);
 		msg_source_rect = { 0, 0, msg_surface->w, msg_surface->h };
-		msg_destination_rect = { 280, 650, msg_source_rect.w, msg_source_rect.h };
+		msg_destination_rect = { 140, 670, msg_source_rect.w, msg_source_rect.h };
 		SDL_FreeSurface(msg_surface);
-		SDL_RenderFillRect(g_renderer, &msg_box_rect);
 	}
 
 	SDL_RenderCopy(g_renderer, msg_texture, &msg_source_rect, &msg_destination_rect);
+
+	SDL_RenderCopy(g_renderer, arrow_texture, &arrow_source_rect, &arrow_destination_rect);
+	SDL_RenderCopy(g_renderer, arrowMsg_texture, &arrowMsg_source_rect, &arrowMsg_destination_rect);
+
 
 	SDL_RenderPresent(g_renderer);
 }
