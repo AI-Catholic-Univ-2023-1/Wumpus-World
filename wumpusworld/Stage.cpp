@@ -57,9 +57,9 @@ Stage::Stage() {
 	}
 
 	setWall();
+	setGold();
 	setWumpus();
 	setPit();
-	setGold();
 
 	// Font
 	font = TTF_OpenFont("Resources/NanumSquareNeo-dEb.ttf", 40);				// 폰트 크기 설정 및 로드
@@ -187,9 +187,6 @@ void Stage::setWumpus() {
 	for (int x = 1; x <= 4; x++) {
 		for (int y = 1; y <= 4; y++) {
 			if (x == 4 && y == 1) continue;
-			else if (x == 1 && y == 2) continue;
-			else if (x == 2 && y == 1) continue;
-			else if (x == 4 && y == 4) continue;
 			else if (grid[x][y][glitter] == true) continue;
 			int random = rand() % 10;
 			if (random == 0) {
@@ -214,9 +211,6 @@ void Stage::setPit() {
 	for (int x = 1; x <= 4; x++) {
 		for (int y = 1; y <= 4; y++) {
 			if (x == 4 && y == 1) continue;
-			else if (x == 1 && y == 2) continue;
-			else if (x == 2 && y == 1) continue;
-			else if (x == 4 && y == 4) continue;
 			else if (grid[x][y][wumpus] == true) continue;
 			else if (grid[x][y][glitter] == true) continue;
 			int random = rand() % 10;
