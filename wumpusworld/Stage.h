@@ -35,6 +35,7 @@ protected:
 	SDL_Texture* breeze_texture;
 	SDL_Texture* wall_texture;
 	SDL_Texture* arrow_texture;
+	SDL_Texture* x_texture;
 	SDL_Rect agent_source_rect;
 	SDL_Rect wumpus_source_rect;
 	SDL_Rect pit_source_rect;
@@ -44,6 +45,8 @@ protected:
 	SDL_Rect wall_source_rect;
 	SDL_Rect arrow_source_rect;
 	SDL_Rect arrow_destination_rect;
+	SDL_Rect x_source_rect;
+	SDL_Rect x_destination_rect;
 
 	// Font
 	SDL_Texture* msg_texture;
@@ -59,7 +62,7 @@ protected:
 	const char* arrow;
 
 public:
-	int grid[6][6][8];//x,y,state
+	bool grid[6][6][8];//x,y,state
 	int xarr[4] = { 1,-1,0,0 };
 	int yarr[4] = { 0,0,1,-1 };
 	int action = 0;
@@ -67,6 +70,7 @@ public:
 	Stage();
 	~Stage();
 
+	void stenchGridCheck();
 	void HandleEvents();
 	void Update();
 	void Render();

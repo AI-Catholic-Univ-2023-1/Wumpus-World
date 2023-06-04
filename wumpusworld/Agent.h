@@ -20,7 +20,7 @@ public:
 	int backPosRow = 4;
 	int backPosCol = 0;
 	int direction = east;
-	int grid[6][6][8]; //x,y,state 
+	bool grid[6][6][9]; //x,y,state 
 	bool visited[6][6];
 	int arrows = 2;
 	bool havingGold = false;

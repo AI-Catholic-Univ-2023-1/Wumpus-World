@@ -8,6 +8,9 @@ const int pit = 4;
 const int breeze = 5;
 const int wall = 6;
 const int glitter = 7;
+const int blocked = 8;
+
+
 const int east = 0;
 const int south = 1;
 const int west = 2;

@@ -55,6 +55,7 @@ public:
 	PhaseInterface() {};
 	~PhaseInterface() {};
 
+	bool end = false;
 	virtual void HandleEvents() = 0;
 	virtual void Update() = 0;
 	virtual void Render() = 0;

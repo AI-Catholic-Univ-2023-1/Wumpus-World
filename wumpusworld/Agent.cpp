@@ -220,7 +220,12 @@ void Agent::goForward() {
 			die();
 		}
 	}
-	void Agent::reasoning(bool stench, bool breeze, bool glitter, bool bump, bool death) {
+	void Agent::reasoning(bool stench, bool breeze, bool isGlitter, bool bump, bool death) {
+		if (stk.empty() && havingGold) {
+			//금이 있고 1,1에 도착
+			action = clmb;
+			return;
+		}
 		if (death == true) {
 			action = dead;
 			return;
@@ -240,15 +245,14 @@ void Agent::goForward() {
 			setGrid(rightPosRow, rightPosCol, safe, true);
 			setGrid(backPosRow, backPosCol, safe, true);
 		}
-		if (stk.empty() && havingGold) {
-			//금이 있고 1,1에 도착
-			action = clmb;
-			return;
-		}
 		if (havingGold) {
 			// 금이 있고 아직 1,1에 도착하지 못함
 			if (frontPosRow != stk.top().first || frontPosCol != stk.top().second) {
 				//왔던 타일을 바라보고 있지 않을 경우
+				if (leftPosRow == stk.top().first && leftPosCol == stk.top().second) {
+					action = turnL;
+					return;
+				}
 				action = turnR;
 				return;
 			}
@@ -256,7 +260,8 @@ void Agent::goForward() {
 			return;
 		
 		}
-		if (glitter == true) {
+		if (isGlitter == true) {
+			setGrid(posRow, posCol, glitter, true);
 			action = grb;
 			return;
 		}
@@ -287,25 +292,30 @@ void Agent::goForward() {
 			(isGrid(rightPosRow, rightPosCol, wall) == true || isGrid(rightPosRow, rightPosCol, pit) == true)
 			) {
 			//사방이 갈 수 없는 경우
-			cout << "실패";
+			action = clmb;
 			return;
 		}
 
 		if (visited[frontPosRow][frontPosCol] == true) {
 			//앞이 방문한 타일일 경우
 			if (
-				(isGrid(backPosRow, backPosCol, wall) == true || isGrid(backPosRow, backPosCol, pit) == true || visited[backPosRow][backPosCol] == true) &&
-				(isGrid(leftPosRow, leftPosCol, wall) == true || isGrid(leftPosRow, leftPosCol, pit) == true || visited[leftPosRow][leftPosCol] == true) &&
-				(isGrid(rightPosRow, rightPosCol, wall) == true || isGrid(rightPosRow, rightPosCol, pit) == true || visited[rightPosRow][rightPosCol] == true)
+				(isGrid(backPosRow, backPosCol, wall) == true || isGrid(backPosRow, backPosCol, pit) == true || visited[backPosRow][backPosCol] == true || isGrid(backPosRow, backPosCol, blocked) == true) &&
+				(isGrid(leftPosRow, leftPosCol, wall) == true || isGrid(leftPosRow, leftPosCol, pit) == true || visited[leftPosRow][leftPosCol] == true || isGrid(leftPosRow, leftPosCol, blocked) == true) &&
+				(isGrid(rightPosRow, rightPosCol, wall) == true || isGrid(rightPosRow, rightPosCol, pit) == true || visited[rightPosRow][rightPosCol] == true || isGrid(rightPosRow, rightPosCol, blocked) == true)
 				) {
 				//뒤, 좌, 우 방문불가(Pit 또는 벽 또는 방문함)
 				if (frontPosRow != stk.top().first || frontPosCol != stk.top().second) {
 					//왔던 타일을 바라보고 있지 않을 경우
+					if (leftPosRow == stk.top().first && leftPosCol == stk.top().second) {
+						action = turnL;
+						return;
+					}
 					action = turnR;
 					return;
 				}
 				else {
-					setGrid(posRow, posRow, wall, true);
+					setGrid(posRow, posCol, blocked, true);
+					setGrid(posRow, posCol, safe, false);
 					action = go;
 					return;
 				}
@@ -315,28 +325,120 @@ void Agent::goForward() {
 				return;
 			}
 		}
-		if (isGrid(frontPosRow, frontPosCol, wall) == true) {
-			//앞이 벽일 경우
+		if (isGrid(frontPosRow, frontPosCol, wall) == true || isGrid(frontPosRow, frontPosCol, blocked) == true || isGrid(frontPosRow, frontPosCol, pit) == true) {
+			//앞이 벽, x, 구덩이인 경우
 			action = turnR;
 			return;
 		}
+		if (stench == true) {//냄새가 나는데 3방향 타일의 정보가 있고,  남은 타일에 대한 정보가 없으면 그 타일은 괴물
+			if (
+				((visited[backPosRow][backPosCol] == true && isGrid(backPosRow, backPosCol, wumpus) == false)||isGrid(backPosRow,backPosCol,wall)==true || isGrid(backPosRow, backPosCol, blocked) == true) &&
+				((visited[leftPosRow][leftPosCol] == true && isGrid(leftPosRow, leftPosCol, wumpus) == false) || isGrid(leftPosRow, leftPosCol, wall) == true || isGrid(leftPosRow, leftPosCol, blocked) == true) &&
+				((visited[rightPosRow][rightPosCol] == true && isGrid(rightPosRow, rightPosCol, wumpus) == false) || isGrid(rightPosRow, rightPosCol, wall) == true || isGrid(rightPosRow, rightPosCol, blocked) == true) &&
+				(visited[frontPosRow][frontPosCol] == false && isGrid(frontPosRow, frontPosCol, wumpus) == false)
+				) {
+				setGrid(frontPosRow, frontPosCol, wumpus, true);
+				action = none;
+				return;
+			}
+			else if (
+				((visited[backPosRow][backPosCol] == true && isGrid(backPosRow, backPosCol, wumpus) == false) || isGrid(backPosRow, backPosCol, wall) == true || isGrid(backPosRow, backPosCol, blocked) == true) &&
+				((visited[leftPosRow][leftPosCol] == true && isGrid(leftPosRow, leftPosCol, wumpus) == false) || isGrid(leftPosRow, leftPosCol, wall) == true || isGrid(leftPosRow, leftPosCol, blocked) == true) &&
+				((visited[frontPosRow][frontPosCol] == true && isGrid(frontPosRow, frontPosCol, wumpus) == false) || isGrid(frontPosRow, frontPosCol, wall) == true || isGrid(frontPosRow, frontPosCol, blocked) == true) &&
+				(visited[rightPosRow][rightPosCol] == false && isGrid(rightPosRow, rightPosCol, wumpus) == false)
+				) {
+				setGrid(rightPosRow, rightPosCol, wumpus, true);
+				action = none;
+				return;
+			}
+			else if (
+				((visited[backPosRow][backPosCol] == true && isGrid(backPosRow, backPosCol, wumpus) == false) || isGrid(backPosRow, backPosCol, wall) == true || isGrid(backPosRow, backPosCol, blocked) == true) &&
+				((visited[frontPosRow][frontPosCol] == true && isGrid(frontPosRow, frontPosCol, wumpus) == false) || isGrid(frontPosRow, frontPosCol, wall) == true || isGrid(frontPosRow, frontPosCol, blocked) == true) &&
+				((visited[rightPosRow][rightPosCol] == true && isGrid(rightPosRow, rightPosCol, wumpus) == false) || isGrid(rightPosRow, rightPosCol, wall) == true || isGrid(rightPosRow, rightPosCol, blocked) == true) &&
+				(visited[leftPosRow][leftPosCol] == false && isGrid(leftPosRow, leftPosCol, wumpus) == false)
+				) {
+				setGrid(leftPosRow, leftPosCol, wumpus, true);
+				action = none;
+				return;
+			}
+			else if (
+				((visited[frontPosRow][frontPosCol] == true && isGrid(frontPosRow, frontPosCol, wumpus) == false) || isGrid(frontPosRow, frontPosCol, wall) == true || isGrid(frontPosRow, frontPosCol, blocked) == true) &&
+				((visited[leftPosRow][leftPosCol] == true && isGrid(leftPosRow, leftPosCol, wumpus) == false) || isGrid(leftPosRow, leftPosCol, wall) == true || isGrid(leftPosRow, leftPosCol, blocked) == true) &&
+				((visited[rightPosRow][rightPosCol] == true && isGrid(rightPosRow, rightPosCol, wumpus) == false) || isGrid(rightPosRow, rightPosCol, wall) == true || isGrid(rightPosRow, rightPosCol, blocked) == true) &&
+				(visited[backPosRow][backPosCol] == false && isGrid(backPosRow, frontPosCol, backPosCol) == false)
+				) {
+				setGrid(backPosRow, backPosCol, wumpus, true);
+				action = none;
+				return;
+			}
+		}
+		if (breeze == true) {//바람이 부는데 3방향 타일의 정보가 있고,  남은 타일에 대한 정보가 없으면 그 타일은 구덩이
+			if (
+				((visited[backPosRow][backPosCol] == true && isGrid(backPosRow, backPosCol, pit) == false) || isGrid(backPosRow, backPosCol, wall) == true || isGrid(backPosRow, backPosCol, blocked) == true) &&
+				((visited[leftPosRow][leftPosCol] == true && isGrid(leftPosRow, leftPosCol, pit) == false) || isGrid(leftPosRow, leftPosCol, wall) == true || isGrid(leftPosRow, leftPosCol, blocked) == true) &&
+				((visited[rightPosRow][rightPosCol] == true && isGrid(rightPosRow, rightPosCol, pit) == false) || isGrid(rightPosRow, rightPosCol, wall) == true || isGrid(rightPosRow, rightPosCol, blocked) == true) &&
+				(visited[frontPosRow][frontPosCol] == false && isGrid(frontPosRow, frontPosCol, pit) == false)
+				) {
+				setGrid(frontPosRow, frontPosCol, pit, true);
+				action = none;
+				return;
+			}
+			else if (
+				((visited[backPosRow][backPosCol] == true && isGrid(backPosRow, backPosCol, pit) == false) || isGrid(backPosRow, backPosCol, wall) == true || isGrid(backPosRow, backPosCol, blocked) == true) &&
+				((visited[leftPosRow][leftPosCol] == true && isGrid(leftPosRow, leftPosCol, pit) == false) || isGrid(leftPosRow, leftPosCol, wall) == true || isGrid(leftPosRow, leftPosCol, blocked) == true) &&
+				((visited[frontPosRow][frontPosCol] == true && isGrid(frontPosRow, frontPosCol, pit) == false) || isGrid(frontPosRow, frontPosCol, wall) == true || isGrid(frontPosRow, frontPosCol, blocked) == true) &&
+				(visited[rightPosRow][rightPosCol] == false && isGrid(rightPosRow, rightPosCol, pit) == false)
+				) {
+				setGrid(rightPosRow, rightPosCol, pit, true);
+				action = none;
+				return;
+			}
+			else if (
+				((visited[backPosRow][backPosCol] == true && isGrid(backPosRow, backPosCol, pit) == false) || isGrid(backPosRow, backPosCol, wall) == true || isGrid(backPosRow, backPosCol, blocked) == true) &&
+				((visited[frontPosRow][frontPosCol] == true && isGrid(frontPosRow, frontPosCol, pit) == false) || isGrid(frontPosRow, frontPosCol, wall) == true || isGrid(frontPosRow, frontPosCol, blocked) == true) &&
+				((visited[rightPosRow][rightPosCol] == true && isGrid(rightPosRow, rightPosCol, pit) == false) || isGrid(rightPosRow, rightPosCol, wall) == true || isGrid(rightPosRow, rightPosCol, blocked) == true) &&
+				(visited[leftPosRow][leftPosCol] == false && isGrid(leftPosRow, leftPosCol, pit) == false)
+				) {
+				setGrid(leftPosRow, leftPosCol, pit, true);
+				action = none;
+				return;
+			}
+			else if (
+				((visited[frontPosRow][frontPosCol] == true && isGrid(frontPosRow, frontPosCol, pit) == false) || isGrid(frontPosRow, frontPosCol, wall) == true || isGrid(frontPosRow, frontPosCol, blocked) == true) &&
+				((visited[leftPosRow][leftPosCol] == true && isGrid(leftPosRow, leftPosCol, pit) == false) || isGrid(leftPosRow, leftPosCol, wall) == true || isGrid(leftPosRow, leftPosCol, blocked) == true) &&
+				((visited[rightPosRow][rightPosCol] == true && isGrid(rightPosRow, rightPosCol, pit) == false) || isGrid(rightPosRow, rightPosCol, wall) == true || isGrid(rightPosRow, rightPosCol, blocked) == true) &&
+				(visited[backPosRow][backPosCol] == false && isGrid(backPosRow, backPosCol, pit) == false)
+				) {
+				setGrid(backPosRow, backPosCol, pit, true);
+				action = none;
+				return;
+			}
+		}
 		if (stench == true || isGrid(frontPosRow, frontPosCol, wumpus) == true) {
-			//7.냄새나거나 앞에 괴물이 있는 경우
-			if (shot == true) {
-				//이미 쐈으면
-				action = go;
+			//7.냄새나거나 앞에 괴물
+			if (arrows > 0) {
+				action = sht;
 				return;
 			}
 			else {
-				if (arrows > 0) {
-					action = sht;
-					return;
-				}
-				else {
-					action = go;
-					return;
-				}
+				action = go;
+				return;
 			}
+			//if (shot == true) {
+			//	//이미 쐈으면
+			//	action = go;
+			//	return;
+			//}
+			//else {
+			//	if (arrows > 0) {
+			//		action = sht;
+			//		return;
+			//	}
+			//	else {
+			//		action = go;
+			//		return;
+			//	}
+			//}
 		}
 		if (isGrid(frontPosRow, frontPosCol, pit) == true) {
 			//앞타일에 구덩이

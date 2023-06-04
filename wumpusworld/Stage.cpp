@@ -1,5 +1,7 @@
 #include "Stage.h"
 #include<stdlib.h>
+#include<string>
+
 Stage::Stage() {
 	// Agent 이미지 로드
 	SDL_Surface* agent_surface = IMG_Load("Resources/agent.png");					// 이미지 로드
@@ -43,6 +45,11 @@ Stage::Stage() {
 	SDL_FreeSurface(wall_surface);
 	wall_source_rect = { 0, 0 ,920 ,920 };
 
+	SDL_Surface* x_surface = IMG_Load("Resources/x.png");
+	x_texture = SDL_CreateTextureFromSurface(g_renderer, x_surface);
+	SDL_FreeSurface(x_surface);
+	x_source_rect = { 0, 0 ,512 ,512 };
+
 	// Arrow 이미지 로드
 	SDL_Surface* arrow_surface = IMG_Load("Resources/arrow.png");
 	arrow_texture = SDL_CreateTextureFromSurface(g_renderer, arrow_surface);
@@ -59,6 +66,7 @@ Stage::Stage() {
 	setWall();
 	setGold();
 	setWumpus();
+	stenchGridCheck();
 	setPit();
 
 	// Font
@@ -135,7 +143,7 @@ void Stage::Render() {
 				SDL_RenderFillRect(g_renderer, &grid_rect[i][j]);
 			}
 			 
-			if (agent->grid[i][j][wumpus] == 1) {	// Wumpus
+			if (agent->isGrid(i,j,wumpus) == true) {	// Wumpus
 				SDL_RenderCopy(g_renderer, wumpus_texture, &wumpus_source_rect, &grid_rect[i][j]);
 			}
 			if (grid[i][j][stench] == 1 && agent->visited[i][j]) {	// Stench
@@ -152,6 +160,9 @@ void Stage::Render() {
 			}
 			if (agent->grid[i][j][wall] == 1) {		// Wall
 				SDL_RenderCopy(g_renderer, wall_texture, &wall_source_rect, &grid_rect[i][j]);
+			}
+			if (agent->grid[i][j][blocked] == 1) {		// xblock
+				SDL_RenderCopy(g_renderer, x_texture, &x_source_rect, &grid_rect[i][j]);
 			}
 			// Agent
 			if (i == agent->posRow && j == agent->posCol) {
@@ -175,6 +186,15 @@ void Stage::Render() {
 	SDL_RenderCopy(g_renderer, msg_texture, &msg_source_rect, &msg_destination_rect);
 
 	SDL_RenderCopy(g_renderer, arrow_texture, &arrow_source_rect, &arrow_destination_rect);
+	{
+		string temp = "X " + std::to_string(agent->arrows);
+		arrow = temp.c_str();
+		SDL_Surface* arrowMsg_surface = TTF_RenderText_Blended(font, arrow, black);
+		arrowMsg_texture = SDL_CreateTextureFromSurface(g_renderer, arrowMsg_surface);
+		arrowMsg_source_rect = { 0, 0, arrowMsg_surface->w, arrowMsg_surface->h };
+		arrowMsg_destination_rect = { 80, 440, arrowMsg_source_rect.w, arrowMsg_source_rect.h };
+		SDL_FreeSurface(arrowMsg_surface);
+	}
 	SDL_RenderCopy(g_renderer, arrowMsg_texture, &arrowMsg_source_rect, &arrowMsg_destination_rect);
 
 
@@ -182,6 +202,23 @@ void Stage::Render() {
 }
 
 void Stage::reasoning() {
+}
+void Stage::stenchGridCheck() {
+	for (int x = 0; x < 6; x++) {
+		for (int y = 0; y < 6; y++) {
+			grid[x][y][stench] = false;
+		}
+	}
+	for (int x = 1; x < 5; x++) {
+		for (int y = 1; y < 5; y++) {
+			if (grid[x][y][wumpus] == true) {
+				grid[x - 1][y][stench] = true;
+				grid[x][y - 1][stench] = true;
+				grid[x + 1][y][stench] = true;
+				grid[x][y + 1][stench] = true;
+			}
+		}
+	}
 }
 void Stage::setWumpus() {
 	for (int x = 1; x <= 4; x++) {
@@ -191,18 +228,6 @@ void Stage::setWumpus() {
 			int random = rand() % 10;
 			if (random == 0) {
 				grid[x][y][wumpus] = true;
-				if (x > 0) {
-					grid[x - 1][y][stench] = true;
-				}
-				if (y > 0) {
-					grid[x][y - 1][stench] = true;
-				}
-				if (x < 5) {
-					grid[x + 1][y][stench] = true;
-				}
-				if (y < 5) {
-					grid[x][y + 1][stench] = true;
-				}
 			}
 		}
 	}
@@ -216,18 +241,10 @@ void Stage::setPit() {
 			int random = rand() % 10;
 			if (random == 0) {
 				grid[x][y][pit] = true;
-				if (x > 0) {
-					grid[x - 1][y][breeze] = true;
-				}
-				if (y > 0) {
-					grid[x][y - 1][breeze] = true;
-				}
-				if (x < 5) {
-					grid[x + 1][y][breeze] = true;
-				}
-				if (y < 5) {
-					grid[x][y + 1][breeze] = true;
-				}
+				grid[x - 1][y][breeze] = true;
+				grid[x][y - 1][breeze] = true;
+				grid[x + 1][y][breeze] = true;
+				grid[x][y + 1][breeze] = true;
 			}
 		}
 	}
@@ -301,10 +318,27 @@ void Stage::process() {
 		else if (isBreeze) {
 			message = "Breeze";
 		}
+		if (isGlitter) {
+			message = "Found Gold!!";
+		}
+		if (agent->action == none) {
+			agent->percept = false;
+		}
 	}
 	else {
 		agent->percept = false;
 		agent->doAction();
+		cout << message << "\n";
+		if (agent->action == clmb && agent->havingGold == true) {
+			message = "Climb! Success!";
+			end = true;
+			return;
+		}
+		else if (agent->action == clmb && agent->havingGold == false) {
+			message = "Not Reachable to Gold!";
+			end = true;
+			return;
+		}
 		if (agent->action == go) {
 			message = "Go Forward";
 		}
@@ -318,6 +352,8 @@ void Stage::process() {
 			message = "Bumped!";
 		}
 		else if (agent->action == sht) {
+			agent->setGrid(agent->frontPosRow, agent->frontPosCol, wumpus, false);
+			agent->setGrid(agent->frontPosRow, agent->frontPosCol, safe, true);
 			message = "Shot but not Screamed";
 			//화살이 날아가서 환경에 변화가 있는지
 			int r, c;
@@ -378,25 +414,13 @@ void Stage::process() {
 					}
 				}
 			}
-			if (killed) {
-				if (r > 0) {
-					grid[r - 1][c][stench] = false;
-				}
-				if (c > 0) {
-					grid[r][c - 1][stench] = false;
-				}
-				if (r < 5) {
-					grid[r + 1][c][stench] = false;
-				}
-				if (c < 5) {
-					grid[r][c + 1][stench] = false;
-				}
-			}
+			stenchGridCheck();
 		}
 		else if (agent->action == grb) {
 			// 금을 주운 후
 			message = "Grabbed Gold";
 			grid[x][y][glitter] = false;
+			agent->setGrid(x, y, glitter, false);
 		}
 	}
 	return;
