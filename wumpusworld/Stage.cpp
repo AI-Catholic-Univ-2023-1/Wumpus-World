@@ -3,7 +3,6 @@
 #include<string>
 
 Stage::Stage() {
-	agent = new Agent();
 	// Agent 이미지 로드
 	SDL_Surface* agent_surface = IMG_Load("Resources/agent.png");					// 이미지 로드
 	agent_texture = SDL_CreateTextureFromSurface(g_renderer, agent_surface);		// 로드한 이미지를 텍스쳐로 만들기
@@ -73,16 +72,7 @@ Stage::Stage() {
 	action_source_rect = { 0, 0 ,512 ,512 };
 	action_destination_rect = { 770, 140, 60, 60 };
 
-	for (int i = 0; i < 6; i++) {
-		for (int j = 0; j < 6; j++) {
-			fill_n(grid[i][j], 8, 0);
-		}
-	}
-	setWall();
-	setGold();
-	setWumpus();
-	stenchGridCheck();
-	setPit();
+	reset();
 
 	// Font
 	font = TTF_OpenFont("Resources/NanumSquareNeo-dEb.ttf", 40);				// 폰트 크기 설정 및 로드

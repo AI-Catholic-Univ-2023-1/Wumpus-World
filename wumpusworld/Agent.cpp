@@ -259,15 +259,15 @@ void Agent::goForward() {
 			// 금이 있고 아직 1,1에 도착하지 못함
 			if (frontPosRow != stk.top().first || frontPosCol != stk.top().second) {
 				//왔던 타일을 바라보고 있지 않을 경우
+				if (rightPosRow == stk.top().first && rightPosCol == stk.top().second) {
+					action = turnR;
+					return;
+				}
 				if (leftPosRow == stk.top().first && leftPosCol == stk.top().second) {
 					action = turnL;
 					return;
 				}
-				else if (rightPosRow == stk.top().first && rightPosCol == stk.top().second) {
-					action = turnR;
-					return;
-				}
-				action = turnL;
+				action = turnR;
 				return;
 			}
 			action = go;
@@ -286,12 +286,12 @@ void Agent::goForward() {
 			action = go;
 			return;
 		}
-		else if (visited[leftPosRow][leftPosCol] == false && isGrid(leftPosRow, leftPosCol, safe) == true && isGrid(leftPosRow, leftPosCol, wall) == false && isGrid(leftPosRow, leftPosCol, blocked) == false) {
-			action = turnL;
-			return;
-		}
 		else if (visited[rightPosRow][rightPosCol] == false && isGrid(rightPosRow, rightPosCol, safe) == true && isGrid(rightPosRow, rightPosCol, wall) == false && isGrid(rightPosRow, rightPosCol, blocked) == false) {
 			action = turnR;
+			return;
+		}
+		else if (visited[leftPosRow][leftPosCol] == false && isGrid(leftPosRow, leftPosCol, safe) == true && isGrid(leftPosRow, leftPosCol, wall) == false && isGrid(leftPosRow, leftPosCol, blocked) == false) {
+			action = turnL;
 			return;
 		}
 		else if (visited[backPosRow][backPosCol] == false && isGrid(backPosRow, backPosCol, safe) == true && isGrid(backPosRow, backPosCol, wall) == false && isGrid(backPosRow, backPosCol, blocked) == false) {
@@ -320,15 +320,15 @@ void Agent::goForward() {
 				//뒤, 좌, 우 방문불가(Pit 또는 벽 또는 방문함)
 				if (frontPosRow != stk.top().first || frontPosCol != stk.top().second) {
 					//왔던 타일을 바라보고 있지 않을 경우
+					if (rightPosRow == stk.top().first && rightPosCol == stk.top().second) {
+						action = turnR;
+						return;
+					}
 					if (leftPosRow == stk.top().first && leftPosCol == stk.top().second) {
 						action = turnL;
 						return;
 					}
-					else if (rightPosRow == stk.top().first && rightPosCol == stk.top().second) {
-						action = turnR;
-						return;
-					}
-					action = turnL;
+					action = turnR;
 					return;
 				}
 				else {
@@ -339,7 +339,7 @@ void Agent::goForward() {
 				}
 			}
 			else {
-				action = turnL;
+				action = turnR;
 				return;
 			}
 		}
@@ -442,7 +442,7 @@ void Agent::goForward() {
 		}
 		if (isGrid(frontPosRow, frontPosCol, wall) == true || isGrid(frontPosRow, frontPosCol, blocked) == true || isGrid(frontPosRow, frontPosCol, pit) == true) {
 			//앞이 벽, x, 구덩이인 경우
-			action = turnL;
+			action = turnR;
 			return;
 		}
 		if (stench == true || isGrid(frontPosRow, frontPosCol, wumpus) == true) {
@@ -458,7 +458,7 @@ void Agent::goForward() {
 		}
 		if (isGrid(frontPosRow, frontPosCol, pit) == true) {
 			//앞타일에 구덩이
-			action = turnL;
+			action = turnR;
 			return;
 		}
 		if (breeze == true) {
