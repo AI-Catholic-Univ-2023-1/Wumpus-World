@@ -45,17 +45,32 @@ Stage::Stage() {
 	SDL_FreeSurface(wall_surface);
 	wall_source_rect = { 0, 0 ,920 ,920 };
 
-	SDL_Surface* x_surface = IMG_Load("Resources/x.png");
-	x_texture = SDL_CreateTextureFromSurface(g_renderer, x_surface);
-	SDL_FreeSurface(x_surface);
-	x_source_rect = { 0, 0 ,512 ,512 };
-
 	// Arrow 이미지 로드
 	SDL_Surface* arrow_surface = IMG_Load("Resources/arrow.png");
 	arrow_texture = SDL_CreateTextureFromSurface(g_renderer, arrow_surface);
 	SDL_FreeSurface(arrow_surface);
 	arrow_source_rect = { 0, 0 ,800 ,800 };
-	arrow_destination_rect = { 20, 435, 50, 50 };
+	arrow_destination_rect = { 775, 235, 50, 50 };
+
+	// X 이미지 로드
+	SDL_Surface* x_surface = IMG_Load("Resources/x.png");
+	x_texture = SDL_CreateTextureFromSurface(g_renderer, x_surface);
+	SDL_FreeSurface(x_surface);
+	x_source_rect = { 0, 0 ,512 ,512 };
+
+	// Died 이미지 로드
+	SDL_Surface* died_surface = IMG_Load("Resources/died.png");
+	died_texture = SDL_CreateTextureFromSurface(g_renderer, died_surface);
+	SDL_FreeSurface(died_surface);
+	died_source_rect = { 0, 0 ,726 ,726 };
+	died_destination_rect = { 770, 40, 60, 60 };
+
+	// Action 이미지 로드
+	SDL_Surface* action_surface = IMG_Load("Resources/action.png");
+	action_texture = SDL_CreateTextureFromSurface(g_renderer, action_surface);
+	SDL_FreeSurface(action_surface);
+	action_source_rect = { 0, 0 ,512 ,512 };
+	action_destination_rect = { 770, 140, 60, 60 };
 
 	for (int i = 0; i < 6; i++) {
 		for (int j = 0; j < 6; j++) {
@@ -79,26 +94,49 @@ Stage::Stage() {
 	SDL_FreeSurface(msg_surface);
 
 	// Arrow Message
-	arrow = "X 2";
-	SDL_Surface* arrowMsg_surface = TTF_RenderText_Blended(font, arrow, black);
+	arrowMsg = "X 2";
+	SDL_Surface* arrowMsg_surface = TTF_RenderText_Blended(font, arrowMsg, black);
 	arrowMsg_texture = SDL_CreateTextureFromSurface(g_renderer, arrowMsg_surface);
 	arrowMsg_source_rect = { 0, 0, arrowMsg_surface->w, arrowMsg_surface->h };
-	arrowMsg_destination_rect = { 80, 440, arrowMsg_source_rect.w, arrowMsg_source_rect.h };
+	arrowMsg_destination_rect = { 840, 240, arrowMsg_source_rect.w, arrowMsg_source_rect.h };
 	SDL_FreeSurface(arrowMsg_surface);
+
+	// Died Message
+	diedMsg = ": 99";
+	SDL_Surface* diedMsg_surface = TTF_RenderText_Blended(font, diedMsg, black);
+	diedMsg_texture = SDL_CreateTextureFromSurface(g_renderer, diedMsg_surface);
+	diedMsg_source_rect = { 0, 0, diedMsg_surface->w, diedMsg_surface->h };
+	diedMsg_destination_rect = { 850, 45, diedMsg_source_rect.w, diedMsg_source_rect.h };
+	SDL_FreeSurface(diedMsg_surface);
+
+	// Action Message
+	actionMsg = ": 99";
+	SDL_Surface* actionMsg_surface = TTF_RenderText_Blended(font, actionMsg, black);
+	actionMsg_texture = SDL_CreateTextureFromSurface(g_renderer, actionMsg_surface);
+	actionMsg_source_rect = { 0, 0, actionMsg_surface->w, actionMsg_surface->h };
+	actionMsg_destination_rect = { 850, 145, actionMsg_source_rect.w, actionMsg_source_rect.h };
+	SDL_FreeSurface(actionMsg_surface);
 }
 
 Stage::~Stage() {
 	resetStage();
 	SDL_DestroyTexture(enemyTexture);
-	SDL_DestroyTexture(agent_texture);	// 텍스쳐 파괴
+	// 이미지 텍스쳐 파괴
+	SDL_DestroyTexture(agent_texture);
 	SDL_DestroyTexture(wumpus_texture);
 	SDL_DestroyTexture(pit_texture);
 	SDL_DestroyTexture(gold_texture);
 	SDL_DestroyTexture(stench_texture);
 	SDL_DestroyTexture(breeze_texture);
 	SDL_DestroyTexture(wall_texture);
+	SDL_DestroyTexture(x_texture);
+	SDL_DestroyTexture(died_texture);
+	SDL_DestroyTexture(action_texture);
+	// 폰트 텍스쳐 파괴
 	SDL_DestroyTexture(msg_texture);
 	SDL_DestroyTexture(arrowMsg_texture);
+	SDL_DestroyTexture(diedMsg_texture);
+	SDL_DestroyTexture(actionMsg_texture);
 	TTF_CloseFont(font);
 }
 
@@ -131,7 +169,7 @@ void Stage::Render() {
 	for (int i = 0; i < 6; i++) {
 		for (int j = 0; j < 6; j++) {
 			// 사각형 위치 지정
-			grid_rect[i][j] = { (j + 1) * 100 + 100, i * 100 + 30, 70, 70 };
+			grid_rect[i][j] = { (j + 1) * 100, i * 100 + 30, 70, 70 };
 
 			// 바깥 사각형
 			SDL_SetRenderDrawColor(g_renderer, 200, 200, 200, 255);
@@ -172,7 +210,7 @@ void Stage::Render() {
 	}
 
 
-	// 메시지 출력
+	// Action 메세지 출력
 	SDL_SetRenderDrawColor(g_renderer, 200, 200, 200, 255);
 	SDL_RenderFillRect(g_renderer, &msg_box_rect);
 	{
@@ -185,18 +223,30 @@ void Stage::Render() {
 
 	SDL_RenderCopy(g_renderer, msg_texture, &msg_source_rect, &msg_destination_rect);
 
+	// 우상단 박스
+	SDL_SetRenderDrawColor(g_renderer, 200, 200, 200, 255);
+	SDL_RenderFillRect(g_renderer, &right_box_rect);
+
+	// Arrow 개수 출력
 	SDL_RenderCopy(g_renderer, arrow_texture, &arrow_source_rect, &arrow_destination_rect);
 	{
 		string temp = "X " + std::to_string(agent->arrows);
-		arrow = temp.c_str();
-		SDL_Surface* arrowMsg_surface = TTF_RenderText_Blended(font, arrow, black);
+		arrowMsg = temp.c_str();
+		SDL_Surface* arrowMsg_surface = TTF_RenderText_Blended(font, arrowMsg, black);
 		arrowMsg_texture = SDL_CreateTextureFromSurface(g_renderer, arrowMsg_surface);
 		arrowMsg_source_rect = { 0, 0, arrowMsg_surface->w, arrowMsg_surface->h };
-		arrowMsg_destination_rect = { 80, 440, arrowMsg_source_rect.w, arrowMsg_source_rect.h };
+		arrowMsg_destination_rect = { 840, 240, arrowMsg_source_rect.w, arrowMsg_source_rect.h };
 		SDL_FreeSurface(arrowMsg_surface);
 	}
 	SDL_RenderCopy(g_renderer, arrowMsg_texture, &arrowMsg_source_rect, &arrowMsg_destination_rect);
 
+	// Died 개수 출력
+	SDL_RenderCopy(g_renderer, died_texture, &died_source_rect, &died_destination_rect);
+	SDL_RenderCopy(g_renderer, diedMsg_texture, &diedMsg_source_rect, &diedMsg_destination_rect);
+
+	// Action 개수 출력
+	SDL_RenderCopy(g_renderer, action_texture, &action_source_rect, &action_destination_rect);
+	SDL_RenderCopy(g_renderer, actionMsg_texture, &actionMsg_source_rect, &actionMsg_destination_rect);
 
 	SDL_RenderPresent(g_renderer);
 }
